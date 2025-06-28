@@ -6,7 +6,7 @@ import (
     "golang.org/x/oauth2/google"
     "os"
     "github.com/joho/godotenv"
-    "fmt"
+	"github.com/gin-contrib/cors"
 )
 
 var (
@@ -25,6 +25,12 @@ func main() {
     }
 
     r := gin.Default()
+	r.Use(cors.New(cors.Config{
+    AllowOrigins:     []string{"http://localhost:5173"},
+    AllowMethods:     []string{"GET", "POST", "PATCH", "OPTIONS"},
+    AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+    AllowCredentials: true,
+}))
     r.GET("/auth/google", HandleGoogleAuth)
     r.GET("/auth/callback", HandleGoogleCallback)
     r.Run(":8000")
