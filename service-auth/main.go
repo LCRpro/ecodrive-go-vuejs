@@ -10,7 +10,7 @@ import (
 )
 
 var (
-    jwtSecret = []byte("CHANGE-MOI")
+jwtSecret = []byte(os.Getenv("JWT_SECRET"))
     googleOauthConfig *oauth2.Config
 )
 
