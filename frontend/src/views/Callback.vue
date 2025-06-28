@@ -6,25 +6,42 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
 const route = useRoute()
-const error = ref('')
 
-onMounted(() => {
-  const { token, roles, email, name, error: err } = route.query
-  if (token) {
-    localStorage.setItem('token', token)
-    if (roles) localStorage.setItem('roles', roles)
-    if (email) localStorage.setItem('email', email)
-    if (name) localStorage.setItem('name', name)
-    router.replace('/')
-  } else if (err) {
-    error.value = err
-  } else {
-    error.value = "Aucun token reçu"
+onMounted(async () => {
+  const token = route.query.token
+  if (!token) {
+    router.replace('/login')
+    return
   }
+  localStorage.setItem('token', token)
+
+  // Décoder le GoogleID depuis le JWT (payload)
+  function getGoogleIdFromToken(token) {
+    try {
+      return JSON.parse(atob(token.split('.')[1])).sub
+    } catch { return null }
+  }
+  const googleId = getGoogleIdFromToken(token)
+  if (!googleId) {
+    router.replace('/login')
+    return
+  }
+
+  // Appel au service-user pour récupérer les rôles
+  const res = await fetch('http://localhost:8002/users/' + googleId)
+  if (res.ok) {
+    const user = await res.json()
+    localStorage.setItem('roles', user.roles) // c'est bien un string JSON
+    localStorage.setItem('email', user.email)
+    localStorage.setItem('name', user.name)
+    localStorage.setItem('google_id', user.google_id)
+    // etc. selon ce que tu veux afficher
+  }
+  router.replace('/')
 })
 </script>
