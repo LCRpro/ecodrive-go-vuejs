@@ -4,6 +4,7 @@ import (
     "gorm.io/driver/mysql"
     "gorm.io/gorm"
     "log"
+	"github.com/gin-gonic/gin"
 )
 
 var db *gorm.DB
@@ -16,4 +17,27 @@ func main() {
         log.Fatalf("failed to connect to db: %v", err)
     }
     db.AutoMigrate(&User{})
+
+	 r := gin.Default()
+
+    r.POST("/users", func(c *gin.Context) {
+        var user User
+        if err := c.ShouldBindJSON(&user); err != nil {
+            c.JSON(400, gin.H{"error": "invalid body"})
+            return
+        }
+        db.Create(&user)
+        c.JSON(201, user)
+    })
+
+    r.GET("/users/:id", func(c *gin.Context) {
+        var user User
+        if err := db.First(&user, c.Param("id")).Error; err != nil {
+            c.JSON(404, gin.H{"error": "not found"})
+            return
+        }
+        c.JSON(200, user)
+    })
+
+    r.Run(":8002")
 }
