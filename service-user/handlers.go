@@ -64,3 +64,25 @@ func GetUserByID(c *gin.Context) {
     }
     c.JSON(200, user)
 }
+
+func ListUsers(c *gin.Context) {
+    var users []User
+    db.Find(&users)
+    c.JSON(200, users)
+}
+
+func PatchUser(c *gin.Context) {
+    var user User
+    if err := db.First(&user, c.Param("id")).Error; err != nil {
+        c.JSON(404, gin.H{"error": "not found"})
+        return
+    }
+    var input map[string]interface{}
+    if err := c.ShouldBindJSON(&input); err != nil {
+        c.JSON(400, gin.H{"error": "bad input"})
+        return
+    }
+    db.Model(&user).Updates(input)
+    db.First(&user, user.ID) 
+    c.JSON(200, user)
+}

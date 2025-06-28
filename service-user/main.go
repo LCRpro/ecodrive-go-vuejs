@@ -36,6 +36,8 @@ r.Use(cors.New(cors.Config{
     AllowCredentials: true,
 }))
     r.GET("/users/:id", GetUserByID)
+    r.GET("/users", ListUsers)         
+    r.PATCH("/users/:id", PatchUser)   
     r.POST("/users/find-or-create", FindOrCreateUser)
     r.Run(":8002")
 }
