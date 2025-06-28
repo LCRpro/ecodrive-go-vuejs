@@ -20,26 +20,38 @@ import { useRouter } from 'vue-router'
 const user = ref(null)
 const router = useRouter()
 
+function getGoogleIdFromToken(token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    return payload.sub
+  } catch {
+    return null
+  }
+}
+
 onMounted(async () => {
   const token = localStorage.getItem('token')
   if (!token) {
     router.push('/login')
     return
   }
-  const res = await fetch('http://localhost:8000/me', {
-    headers: { Authorization: 'Bearer ' + token }
-  })
+  const googleId = getGoogleIdFromToken(token)
+  if (!googleId) {
+    router.push('/login')
+    return
+  }
+
+  const res = await fetch(`http://localhost:8002/users/${googleId}`)
   if (res.ok) user.value = await res.json()
+  else router.push('/login')
 })
 
 async function updateProfile() {
   const token = localStorage.getItem('token')
-  const res = await fetch('http://localhost:8000/me', {
+  const googleId = getGoogleIdFromToken(token)
+  const res = await fetch(`http://localhost:8002/users/${googleId}`, {
     method: 'PATCH',
-    headers: {
-      Authorization: 'Bearer ' + token,
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       Birthdate: user.value.birthdate,
       Gender: user.value.gender,
