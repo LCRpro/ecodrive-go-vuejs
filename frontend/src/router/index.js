@@ -8,7 +8,7 @@ const routes = [
   { path: '/', component: Home, meta: { requiresAuth: true } },
   { path: '/login', component: Login },
   { path: '/me', component: Me, meta: { requiresAuth: true } },
-  { path: '/callback', component: Callback }, // Ajout
+  { path: '/callback', component: Callback }, 
   { path: '/:pathMatch(.*)*', redirect: '/' }
 ]
 
