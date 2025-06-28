@@ -1,47 +1,22 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+  <div>
+    <nav style="margin-bottom:24px;">
+      <router-link v-if="isLoggedIn" to="/">Accueil</router-link> |
+      <router-link v-if="isLoggedIn" to="/me">Mon profil</router-link> |
+      <router-link v-if="!isLoggedIn" to="/login">Login</router-link>
+      <button v-if="isLoggedIn" @click="logout" style="margin-left:12px;">Déconnexion</button>
+    </nav>
+    <router-view />
+  </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
+<script setup>
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+const router = useRouter()
+const isLoggedIn = computed(() => !!localStorage.getItem('token'))
+function logout() {
+  localStorage.clear()
+  router.push('/login')
 }
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
-</style>
+</script>
