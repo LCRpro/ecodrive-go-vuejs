@@ -7,6 +7,7 @@ import (
     "net/http/httptest"
     "strings"
     "testing"
+    "strconv"
 )
 
 var testdb *gorm.DB
@@ -58,7 +59,8 @@ func TestUserAPI(t *testing.T) {
     testdb.First(&createdUser)
 
     w2 := httptest.NewRecorder()
-    req2 := httptest.NewRequest("GET", "/users/"+string(rune(createdUser.ID)), nil)
+    userIDstr := strconv.FormatUint(uint64(createdUser.ID), 10)
+    req2 := httptest.NewRequest("GET", "/users/"+userIDstr, nil)
     router.ServeHTTP(w2, req2)
     if w2.Code != 200 {
         t.Fatalf("expected 200, got %d", w2.Code)

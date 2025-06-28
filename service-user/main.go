@@ -4,8 +4,6 @@ import (
     "github.com/gin-gonic/gin"
     "gorm.io/driver/mysql"
     "gorm.io/gorm"
-    "os"
-    "fmt"
 )
 
 var db *gorm.DB
