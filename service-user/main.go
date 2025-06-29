@@ -26,6 +26,7 @@ func main() {
         panic("Erreur connexion BDD: " + err.Error())
     }
     db.AutoMigrate(&User{})
+    db.AutoMigrate(&DriverRequest{})
 
     r := gin.Default()
 
@@ -39,10 +40,12 @@ r.Use(cors.New(cors.Config{
     r.GET("/users", ListUsers)         
     r.PATCH("/users/:id", PatchUser)   
     r.POST("/users/find-or-create", FindOrCreateUser)
+    r.POST("/driver-requests", CreateDriverRequest)
+r.GET("/driver-requests", ListDriverRequests)
+r.PATCH("/driver-requests/:id", HandleDriverRequest)
     r.Run(":8002")
 }
 
-// Fonction qui convertit l'URL du .env vers un DSN Gorm/MySQL
 func databaseURLToDSN(dburl string) string {
     dburl = strings.TrimPrefix(dburl, "mysql://")
     i := strings.Index(dburl, "@")
