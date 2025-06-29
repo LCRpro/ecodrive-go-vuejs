@@ -83,6 +83,11 @@ func PatchUser(c *gin.Context) {
         c.JSON(400, gin.H{"error": "bad input"})
         return
     }
+if v, ok := input["balance"]; ok {
+    if f, ok := v.(float64); ok {
+        user.Balance = f
+    }
+}
     db.Model(&user).Updates(input)
     db.First(&user, user.ID) 
     c.JSON(200, user)
