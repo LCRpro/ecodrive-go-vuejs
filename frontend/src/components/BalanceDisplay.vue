@@ -21,5 +21,5 @@ async function fetchBalance() {
   }
 }
 onMounted(fetchBalance)
-window.addEventListener('focus', fetchBalance) // refresh si retour focus
+window.addEventListener('focus', fetchBalance) 
 </script>
