@@ -59,6 +59,31 @@
       </table>
     </div>
   </div>
+
+  <h3 style="margin-top:32px;">Transactions</h3>
+<table border="1" cellpadding="5" v-if="transactions.length">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Utilisateur</th>
+      <th>Type</th>
+      <th>Montant (€)</th>
+      <th>Détails</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr v-for="tx in transactions" :key="tx.id">
+      <td>{{ new Date(tx.created_at).toLocaleString() }}</td>
+      <td>
+        {{ getUserByGoogleId(tx.google_id)?.email || tx.google_id }}
+      </td>
+      <td>{{ tx.type === 'deposit' ? 'Dépôt' : 'Retrait' }}</td>
+      <td>{{ tx.amount.toFixed(2) }}</td>
+      <td v-if="tx.type === 'deposit'">Carte</td>
+      <td v-else>IBAN : {{ tx.iban_mask }}</td>
+    </tr>
+  </tbody>
+</table>
 </template>
 
 <script setup>
@@ -122,6 +147,15 @@ async function fetchAppBalance() {
     appBalance.value = data.balance
   }
 }
+
+const transactions = ref([])
+onMounted(async () => {
+  const token = localStorage.getItem('token')
+  const res = await fetch('http://localhost:8004/transactions', {
+    headers: { Authorization: 'Bearer ' + token }
+  })
+  transactions.value = res.ok ? await res.json() : []
+})
 </script>
 
 <style>

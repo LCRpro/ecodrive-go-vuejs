@@ -7,6 +7,7 @@
       <div>Naissance: <input v-model="user.birthdate" /></div>
       <div>Genre: <input v-model="user.gender" /></div>
       <div>Solde : {{ user.balance?.toFixed(2) ?? '0.00' }} €</div>
+      <TransactionHistory />
       <button @click="updateProfile">Mettre à jour</button>
 
       <div v-if="driverRequest">
@@ -47,6 +48,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import TransactionHistory from '../components/TransactionHistory.vue'
 const user = ref(null)
 const driverRequest = ref(null)
 const router = useRouter()
