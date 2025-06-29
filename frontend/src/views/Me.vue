@@ -6,6 +6,7 @@
       <div>Nom: {{ user.name }}</div>
       <div>Naissance: <input v-model="user.birthdate" /></div>
       <div>Genre: <input v-model="user.gender" /></div>
+      <div>Solde : {{ user.balance?.toFixed(2) ?? '0.00' }} €</div>
       <button @click="updateProfile">Mettre à jour</button>
 
       <div v-if="driverRequest">

@@ -1,6 +1,9 @@
 <template>
   <div>
     <h2>Panel Admin</h2>
+    <div v-if="appBalance !== null" style="margin-bottom: 16px;">
+  <b>Solde de la plateforme :</b> {{ appBalance.toFixed(2) }} €
+</div>
     <div v-if="loading">Chargement...</div>
     <div v-else>
       <table border="1" cellpadding="5">
@@ -62,6 +65,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 const router = useRouter()
+const appBalance = ref(null)
 const users = ref([])
 const driverRequests = ref([])
 const loading = ref(true)
@@ -75,6 +79,7 @@ onMounted(async () => {
   }
   await fetchUsers()
   await fetchDriverRequests()
+  await fetchAppBalance()
 })
 
 async function fetchUsers() {
@@ -108,6 +113,14 @@ async function handleRequest(id, action) {
   })
   await fetchDriverRequests()
   await fetchUsers()
+}
+
+async function fetchAppBalance() {
+  const res = await fetch('http://localhost:8002/app-balance')
+  if (res.ok) {
+    const data = await res.json()
+    appBalance.value = data.balance
+  }
 }
 </script>
 
