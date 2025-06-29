@@ -72,13 +72,12 @@ func AcceptDriver(c *gin.Context) {
 var driverRequests []DriverRequest
 
 type DriverRequest struct {
-    UserID  string `json:"user_id"`
+    GoogleID  string `json:"user_id"`
     Car     string `json:"car"`
     Plate   string `json:"plate"`
-    Status  string `json:"status"` // pending/accepted/refused
+    Status  string `json:"status"` 
 }
 
-// POST /admin/driver-requests
 func CreateDriverRequest(c *gin.Context) {
     var req DriverRequest
     if err := c.ShouldBindJSON(&req); err != nil {
@@ -90,7 +89,37 @@ func CreateDriverRequest(c *gin.Context) {
     c.JSON(201, req)
 }
 
-// GET /admin/driver-requests
+
 func ListDriverRequests(c *gin.Context) {
-    c.JSON(200, driverRequests)
+    resp, err := http.Get("http://localhost:8002/driver-requests")
+    if err != nil {
+        c.JSON(500, gin.H{"error": "service-user injoignable"})
+        return
+    }
+    defer resp.Body.Close()
+    var reqs []map[string]interface{}
+    json.NewDecoder(resp.Body).Decode(&reqs)
+    c.JSON(200, reqs)
+}
+
+func HandleDriverRequest(c *gin.Context) {
+    id := c.Param("id")
+    var input struct{ Action string `json:"action"` }
+    if err := c.ShouldBindJSON(&input); err != nil {
+        c.JSON(400, gin.H{"error": "bad input"})
+        return
+    }
+    body, _ := json.Marshal(input)
+    req, _ := http.NewRequest("PATCH", "http://localhost:8002/driver-requests/"+id, bytes.NewReader(body))
+    req.Header.Set("Content-Type", "application/json")
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        c.JSON(500, gin.H{"error": "service-user KO"})
+        return
+    }
+    defer resp.Body.Close()
+    var updated map[string]interface{}
+    json.NewDecoder(resp.Body).Decode(&updated)
+    c.JSON(200, updated)
 }

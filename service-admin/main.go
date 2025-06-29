@@ -28,8 +28,10 @@ func main() {
     {
         admin.GET("/users", ListUsers)
         admin.PATCH("/users/:id/accept-driver", AcceptDriver)
+        admin.GET("/driver-requests", ListDriverRequests)
+admin.PATCH("/driver-requests/:id", HandleDriverRequest)
     }
 	r.POST("/admin/driver-requests", CreateDriverRequest)
-r.GET("/admin/driver-requests", ListDriverRequests)
+
     r.Run(":8003")
 }
