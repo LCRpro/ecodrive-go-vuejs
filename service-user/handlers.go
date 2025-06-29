@@ -166,3 +166,12 @@ func HandleDriverRequest(c *gin.Context) {
     db.Save(&req)
     c.JSON(200, req)
 }
+
+func GetAppBalance(c *gin.Context) {
+    var acc AppAccount
+    if err := db.First(&acc).Error; err != nil {
+        c.JSON(500, gin.H{"error": "no app account"})
+        return
+    }
+    c.JSON(200, acc)
+}

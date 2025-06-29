@@ -27,6 +27,13 @@ func main() {
     }
     db.AutoMigrate(&User{})
     db.AutoMigrate(&DriverRequest{})
+    db.AutoMigrate(&User{})
+    db.AutoMigrate(&AppAccount{})
+
+    var acc AppAccount
+    if db.First(&acc).Error == gorm.ErrRecordNotFound {
+        db.Create(&AppAccount{Balance: 0})
+    }
 
     r := gin.Default()
 
@@ -41,8 +48,9 @@ r.Use(cors.New(cors.Config{
     r.PATCH("/users/:id", PatchUser)   
     r.POST("/users/find-or-create", FindOrCreateUser)
     r.POST("/driver-requests", CreateDriverRequest)
-r.GET("/driver-requests", ListDriverRequests)
-r.PATCH("/driver-requests/:id", HandleDriverRequest)
+    r.GET("/driver-requests", ListDriverRequests)
+    r.PATCH("/driver-requests/:id", HandleDriverRequest)
+    r.GET("/app-balance", GetAppBalance)
     r.Run(":8002")
 }
 
