@@ -6,10 +6,28 @@
       <div>Nom: {{ user.name }}</div>
       <div>Naissance: <input v-model="user.birthdate" /></div>
       <div>Genre: <input v-model="user.gender" /></div>
-      <div>Voiture: <input v-model="user.car" /></div>
-      <div>Plaque: <input v-model="user.plate" /></div>
       <button @click="updateProfile">Mettre à jour</button>
-      <button @click="openDriverModal" style="margin-left:12px;">Devenir driver</button>
+
+      <div v-if="driverRequest">
+        <div v-if="driverRequest.status === 'pending'" style="margin-top:10px;">
+          <b>Demande driver en attente de validation</b><br>
+          Voiture: {{ driverRequest.car }}<br>
+          Plaque: {{ driverRequest.plate }}
+        </div>
+        <div v-else-if="driverRequest.status === 'accepted'" style="margin-top:10px;">
+          <b>Vous êtes driver !</b><br>
+          Voiture: {{ driverRequest.car }}<br>
+          Plaque: {{ driverRequest.plate }}
+        </div>
+        <div v-else-if="driverRequest.status === 'refused'" style="margin-top:10px;color:#a00;">
+          <b>Votre demande driver a été refusée.</b>
+        </div>
+      </div>
+      <button
+        v-if="!driverRequest"
+        @click="openDriverModal"
+        style="margin-left:12px;margin-top:10px;"
+      >Devenir driver</button>
     </div>
     <div v-else>Chargement...</div>
 
@@ -29,6 +47,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 const user = ref(null)
+const driverRequest = ref(null)
 const router = useRouter()
 
 const showModal = ref(false)
@@ -58,6 +77,14 @@ onMounted(async () => {
   const res = await fetch(`http://localhost:8002/users/${googleId}`)
   if (res.ok) user.value = await res.json()
   else router.push('/login')
+
+  const drres = await fetch(`http://localhost:8002/driver-requests`)
+  if (drres.ok) {
+    const list = await drres.json()
+    driverRequest.value = list.find(
+      d => d.google_id === googleId && (d.status === "pending" || d.status === "accepted")
+    ) || null
+  }
 })
 
 async function updateProfile() {
@@ -69,18 +96,15 @@ async function updateProfile() {
     body: JSON.stringify({
       Birthdate: user.value.birthdate,
       Gender: user.value.gender,
-      Car: user.value.car,
-      Plate: user.value.plate,
     })
   })
   if (res.ok) alert('Mise à jour OK')
 }
 
-// Modal devenir driver
 function openDriverModal() {
   showModal.value = true
-  modalCar.value = user.value.car || ''
-  modalPlate.value = user.value.plate || ''
+  modalCar.value = ''
+  modalPlate.value = ''
 }
 function closeModal() {
   showModal.value = false
@@ -89,13 +113,30 @@ function closeModal() {
 async function requestDriver() {
   const token = localStorage.getItem('token')
   const googleId = getGoogleIdFromToken(token)
-  await fetch(`http://localhost:8003/admin/driver-requests`, {
+  if (!googleId) {
+    alert('Erreur : google_id introuvable')
+    return
+  }
+  const payload = { google_id: googleId, car: modalCar.value, plate: modalPlate.value }
+  const res = await fetch(`http://localhost:8002/driver-requests`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-    body: JSON.stringify({ google_id: googleId, car: modalCar.value, plate: modalPlate.value })
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
   })
-  alert('Demande envoyée à l’admin !')
-  closeModal()
+  if (res.ok) {
+    alert('Demande envoyée à l’admin !')
+    const drres = await fetch(`http://localhost:8002/driver-requests`)
+    if (drres.ok) {
+      const list = await drres.json()
+      driverRequest.value = list.find(
+        d => d.google_id === googleId && (d.status === "pending" || d.status === "accepted")
+      ) || null
+    }
+    closeModal()
+  } else {
+    const err = await res.json().catch(()=>null)
+    alert('Erreur lors de la demande : ' + (err?.error || ''))
+  }
 }
 </script>
 
