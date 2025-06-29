@@ -12,7 +12,6 @@
             <th>Rôles</th>
             <th>Voiture</th>
             <th>Plaque</th>
-            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -23,25 +22,38 @@
             <td>{{ JSON.parse(u.roles || "[]").join(", ") }}</td>
             <td>{{ u.car || '-' }}</td>
             <td>{{ u.plate || '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin-top:32px;">Demandes driver</h3>
+      <table border="1" cellpadding="5">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Voiture</th>
+            <th>Plaque</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="req in driverRequests" :key="req.ID">
+            <td>{{ req.ID }}</td>
+<td>{{ getUserByGoogleId(req.google_id || req.GoogleID)?.name || '-' }}</td>
+<td>{{ getUserByGoogleId(req.google_id || req.GoogleID)?.email || '-' }}</td>
+            <td>{{ req.car }}</td>
+            <td>{{ req.plate }}</td>
+            <td>{{ req.status }}</td>
             <td>
-              <button 
-                v-if="showAcceptDriver(u)"
-                @click="openDriverModal(u)"
-              >Accepter driver</button>
+              <button v-if="req.status === 'pending'" @click="handleRequest(req.ID, 'accept')">Accepter</button>
+              <button v-if="req.status === 'pending'" @click="handleRequest(req.ID, 'refuse')" style="margin-left:8px;">Refuser</button>
             </td>
           </tr>
         </tbody>
       </table>
-    </div>
-
-    <div v-if="modalUser" class="modal-bg">
-      <div class="modal">
-        <h3>Accepter {{ modalUser.name }} comme driver</h3>
-        <input v-model="car" placeholder="Voiture" />
-        <input v-model="plate" placeholder="Plaque" />
-        <button @click="acceptDriver">Valider</button>
-        <button @click="closeModal" style="margin-left:12px;">Annuler</button>
-      </div>
     </div>
   </div>
 </template>
@@ -51,10 +63,8 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 const router = useRouter()
 const users = ref([])
+const driverRequests = ref([])
 const loading = ref(true)
-const modalUser = ref(null)
-const car = ref('')
-const plate = ref('')
 
 onMounted(async () => {
   const token = localStorage.getItem('token')
@@ -64,6 +74,7 @@ onMounted(async () => {
     return
   }
   await fetchUsers()
+  await fetchDriverRequests()
 })
 
 async function fetchUsers() {
@@ -76,37 +87,27 @@ async function fetchUsers() {
   loading.value = false
 }
 
-function showAcceptDriver(u) {
-  try {
-    return !JSON.parse(u.roles || "[]").includes('ROLE_DRIVER')
-  } catch {
-    return true
-  }
-}
-
-function openDriverModal(u) {
-  modalUser.value = u
-  car.value = u.car || ''
-  plate.value = u.plate || ''
-}
-function closeModal() {
-  modalUser.value = null
-  car.value = ''
-  plate.value = ''
-}
-
-async function acceptDriver() {
+async function fetchDriverRequests() {
   const token = localStorage.getItem('token')
-  await fetch('http://localhost:8003/admin/users/' + modalUser.value.id + '/accept-driver', {
-    method: 'PATCH',
-    headers: {
-      Authorization: 'Bearer ' + token,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ car: car.value, plate: plate.value })
+  const res = await fetch('http://localhost:8003/admin/driver-requests', {
+    headers: { Authorization: 'Bearer ' + token }
   })
+  driverRequests.value = res.ok ? await res.json() : []
+}
+
+function getUserByGoogleId(google_id) {
+  return users.value.find(u => u.google_id === google_id)
+}
+
+async function handleRequest(id, action) {
+  const token = localStorage.getItem('token')
+  await fetch('http://localhost:8003/admin/driver-requests/' + id, {
+    method: 'PATCH',
+    headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action })
+  })
+  await fetchDriverRequests()
   await fetchUsers()
-  closeModal()
 }
 </script>
 
