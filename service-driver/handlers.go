@@ -66,7 +66,7 @@ func ListCourses(c *gin.Context) {
 	if role == "passenger" && id != "" {
 		db.Where("passenger_id = ?", id).Order("created_at desc").Find(&courses)
 	} else if role == "driver" && id != "" {
-		db.Where("status = ? OR driver_id = ?", "requested", id).Order("created_at desc").Find(&courses)
+		db.Where("driver_id = ?", id).Order("created_at desc").Find(&courses)
 	} else {
 		db.Order("created_at desc").Find(&courses)
 	}
