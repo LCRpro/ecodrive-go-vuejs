@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"bytes"
+	"fmt"
 )
 
 func CreateCourse(c *gin.Context) {
@@ -145,24 +147,19 @@ func HasEnoughBalance(googleID string, amount float64) bool {
 	return user.Balance >= amount
 }
 
-func StartCourse(c *gin.Context) {
-    var course Course
-    idU64, err := strconv.ParseUint(c.Param("id"), 10, 64)
-    if err != nil {
-        c.JSON(400, gin.H{"error": "ID invalide"})
-        return
-    }
-    if err := db.Where("id = ?", idU64).First(&course).Error; err != nil {
-        c.JSON(404, gin.H{"error": "not found"})
-        return
-    }
-    if course.Status != "accepted" {
-        c.JSON(400, gin.H{"error": "Course non acceptée ou déjà commencée"})
-        return
-    }
-    course.Status = "in_progress"
-    db.Save(&course)
-    c.JSON(200, course)
+
+func UpdateUserBalance(googleID string, delta float64) {
+    resp, err := http.Get("http://localhost:8002/users/" + googleID)
+    if err != nil { return }
+    defer resp.Body.Close()
+    var user struct{ Balance float64 }
+    json.NewDecoder(resp.Body).Decode(&user)
+    newBalance := user.Balance + delta
+    body, _ := json.Marshal(map[string]float64{"balance": newBalance})
+    req, _ := http.NewRequest("PATCH", "http://localhost:8002/users/"+googleID, bytes.NewBuffer(body))
+    req.Header.Set("Content-Type", "application/json")
+    client := &http.Client{}
+    client.Do(req)
 }
 
 func CompleteCourse(c *gin.Context) {
@@ -181,6 +178,45 @@ func CompleteCourse(c *gin.Context) {
         return
     }
     course.Status = "completed"
+    db.Save(&course)
+    c.JSON(200, course)
+}
+
+func creditAppAccount(amount float64) {
+    body := []byte(fmt.Sprintf(`{"amount":%f}`, amount))
+    req, _ := http.NewRequest("PATCH", "http://localhost:8002/app-account/credit", bytes.NewBuffer(body))
+    req.Header.Set("Content-Type", "application/json")
+    client := &http.Client{}
+    client.Do(req)
+}
+
+func StartCourse(c *gin.Context) {
+    var course Course
+    idU64, err := strconv.ParseUint(c.Param("id"), 10, 64)
+    if err != nil {
+        c.JSON(400, gin.H{"error": "ID invalide"})
+        return
+    }
+    if err := db.Where("id = ?", idU64).First(&course).Error; err != nil {
+        c.JSON(404, gin.H{"error": "not found"})
+        return
+    }
+    if course.Status != "accepted" {
+        c.JSON(400, gin.H{"error": "Course non acceptée ou déjà commencée"})
+        return
+    }
+
+    go UpdateUserBalance(course.PassengerID, -course.Amount)
+
+if course.DriverID != "" {
+    driverGain := course.Amount * 0.80  
+    go UpdateUserBalance(course.DriverID, driverGain)
+}
+
+appShare := course.Amount * 0.20 
+go creditAppAccount(appShare)
+
+    course.Status = "in_progress"
     db.Save(&course)
     c.JSON(200, course)
 }

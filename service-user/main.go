@@ -51,6 +51,7 @@ r.Use(cors.New(cors.Config{
     r.GET("/driver-requests", ListDriverRequests)
     r.PATCH("/driver-requests/:id", HandleDriverRequest)
     r.GET("/app-balance", GetAppBalance)
+    r.PATCH("/app-account/credit", CreditAppAccount)
     r.Run(":8002")
 }
 

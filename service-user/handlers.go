@@ -3,50 +3,8 @@ package main
 import (
     "encoding/json"
     "github.com/gin-gonic/gin"
-    "gorm.io/gorm"
     "fmt"
 )
-
-func FindOrCreateUser(c *gin.Context) {
-    var input struct {
-        GoogleID string `json:"google_id"`
-        Email    string `json:"email"`
-        Name     string `json:"name"`
-    }
-    if err := c.ShouldBindJSON(&input); err != nil {
-        c.JSON(400, gin.H{"error": "bad input"})
-        return
-    }
-    var user User
-    if err := db.Where("google_id = ?", input.GoogleID).First(&user).Error; err == gorm.ErrRecordNotFound {
-        roles := []string{"ROLE_PASSAGER"}
-        if input.Email == "liam2106cariou@gmail.com" {
-            roles = append(roles, "ROLE_ADMIN")
-        }
-        rolesJSON, _ := json.Marshal(roles)
-        user = User{
-            GoogleID: input.GoogleID,
-            Email:    input.Email,
-            Name:     input.Name,
-            Roles:    string(rolesJSON),
-        }
-        db.Create(&user)
-    } else {
-        var roles []string
-        json.Unmarshal([]byte(user.Roles), &roles)
-        updated := false
-        if input.Email == "liam2106cariou@gmail.com" && !contains(roles, "ROLE_ADMIN") {
-            roles = append(roles, "ROLE_ADMIN")
-            updated = true
-        }
-        if updated {
-            rolesJSON, _ := json.Marshal(roles)
-            user.Roles = string(rolesJSON)
-            db.Save(&user)
-        }
-    }
-    c.JSON(200, user)
-}
 
 func contains(list []string, item string) bool {
     for _, v := range list {
@@ -57,12 +15,43 @@ func contains(list []string, item string) bool {
     return false
 }
 
-func GetUserByID(c *gin.Context) {
-    var user User
-    if err := db.First(&user, c.Param("id")).Error; err != nil {
-        c.JSON(404, gin.H{"error": "not found"})
+func FindOrCreateUser(c *gin.Context) {
+    var in struct {
+        GoogleID string `json:"google_id"`
+        Email    string `json:"email"`
+        Name     string `json:"name"`
+    }
+    if err := c.ShouldBindJSON(&in); err != nil {
+        c.JSON(400, gin.H{"error": "bad input"})
         return
     }
+
+    var user User
+    if err := db.Where("google_id = ?", in.GoogleID).First(&user).Error; err == nil {
+        c.JSON(200, user)
+        return
+    }
+    if err := db.Where("email = ?", in.Email).First(&user).Error; err == nil {
+        user.GoogleID = in.GoogleID
+        db.Save(&user)
+        c.JSON(200, user)
+        return
+    }
+
+    var roles string
+    if in.Email == "liam2106cariou@gmail.com" || in.Name == "Liam Cariou" {
+        roles = `["ROLE_ADMIN","ROLE_PASSAGER"]`
+    } else {
+        roles = `["ROLE_PASSAGER"]`
+    }
+
+    user = User{
+        GoogleID: in.GoogleID,
+        Email:    in.Email,
+        Name:     in.Name,
+        Roles:    roles,
+    }
+    db.Create(&user)
     c.JSON(200, user)
 }
 
@@ -74,7 +63,7 @@ func ListUsers(c *gin.Context) {
 
 func PatchUser(c *gin.Context) {
     var user User
-    if err := db.First(&user, c.Param("id")).Error; err != nil {
+-    if err := db.Where("google_id = ?", c.Param("id")).First(&user).Error; err != nil {
         c.JSON(404, gin.H{"error": "not found"})
         return
     }
@@ -83,13 +72,13 @@ func PatchUser(c *gin.Context) {
         c.JSON(400, gin.H{"error": "bad input"})
         return
     }
-if v, ok := input["balance"]; ok {
-    if f, ok := v.(float64); ok {
-        user.Balance = f
+-    if v, ok := input["balance"]; ok {
+        if f, ok := v.(float64); ok {
+            user.Balance = f
+        }
     }
-}
     db.Model(&user).Updates(input)
-    db.First(&user, user.ID) 
+    db.First(&user, user.ID)
     c.JSON(200, user)
 }
 
@@ -171,6 +160,14 @@ func HandleDriverRequest(c *gin.Context) {
     db.Save(&req)
     c.JSON(200, req)
 }
+func GetUserByID(c *gin.Context) {
+    var user User
+    if err := db.Where("google_id = ?", c.Param("id")).First(&user).Error; err != nil {
+        c.JSON(404, gin.H{"error": "not found"})
+        return
+    }
+    c.JSON(200, user)
+}
 
 func GetAppBalance(c *gin.Context) {
     var acc AppAccount
@@ -179,4 +176,24 @@ func GetAppBalance(c *gin.Context) {
         return
     }
     c.JSON(200, acc)
+}
+
+func CreditAppAccount(c *gin.Context) {
+    var input struct {
+        Amount float64 `json:"amount"`
+    }
+    if err := c.ShouldBindJSON(&input); err != nil || input.Amount == 0 {
+        c.JSON(400, gin.H{"error": "bad input"})
+        return
+    }
+
+    var app AppAccount
+    if err := db.First(&app, 1).Error; err != nil {
+        app = AppAccount{ID: 1, Balance: input.Amount}
+        db.Create(&app)
+    } else {
+        app.Balance += input.Amount
+        db.Save(&app)
+    }
+    c.JSON(200, app)
 }
