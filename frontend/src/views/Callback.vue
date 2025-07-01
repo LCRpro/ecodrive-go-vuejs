@@ -8,40 +8,50 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { ref } from 'vue'
 
 const router = useRouter()
 const route = useRoute()
+const error = ref('')
 
 onMounted(async () => {
   const token = route.query.token
   if (!token) {
+    error.value = "Token manquant, veuillez vous reconnecter."
     router.replace('/login')
     return
   }
+
+  localStorage.clear()
   localStorage.setItem('token', token)
 
-  // Décoder le GoogleID depuis le JWT (payload)
-  function getGoogleIdFromToken(token) {
-    try {
-      return JSON.parse(atob(token.split('.')[1])).sub
-    } catch { return null }
+  let payload = {}
+  try {
+    payload = JSON.parse(atob(token.split('.')[1]))
+  } catch {
+    error.value = "Token invalide, veuillez vous reconnecter."
+    router.replace('/login')
+    return
   }
-  const googleId = getGoogleIdFromToken(token)
-  if (!googleId) {
+  if (!payload.sub) {
+    error.value = "Identifiant Google manquant dans le token."
     router.replace('/login')
     return
   }
 
-  // Appel au service-user pour récupérer les rôles
-  const res = await fetch('http://localhost:8002/users/' + googleId)
-  if (res.ok) {
-    const user = await res.json()
-    localStorage.setItem('roles', user.roles) // c'est bien un string JSON
-    localStorage.setItem('email', user.email)
-    localStorage.setItem('name', user.name)
-    localStorage.setItem('google_id', user.google_id)
-    // etc. selon ce que tu veux afficher
+  localStorage.setItem('google_id', payload.sub)
+  localStorage.setItem('email', payload.email)
+  localStorage.setItem('roles', JSON.stringify(payload.roles || []))
+
+  try {
+    const res = await fetch('http://localhost:8002/users/' + payload.sub)
+    if (res.ok) {
+      const user = await res.json()
+      localStorage.setItem('name', user.name || '')
+    }
+  } catch (e) {
   }
+
   router.replace('/')
 })
 </script>
