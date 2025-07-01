@@ -63,7 +63,7 @@ func ListUsers(c *gin.Context) {
 
 func PatchUser(c *gin.Context) {
     var user User
--    if err := db.Where("google_id = ?", c.Param("id")).First(&user).Error; err != nil {
+    if err := db.Where("google_id = ?", c.Param("id")).First(&user).Error; err != nil {
         c.JSON(404, gin.H{"error": "not found"})
         return
     }
@@ -72,7 +72,7 @@ func PatchUser(c *gin.Context) {
         c.JSON(400, gin.H{"error": "bad input"})
         return
     }
--    if v, ok := input["balance"]; ok {
+    if v, ok := input["balance"]; ok {
         if f, ok := v.(float64); ok {
             user.Balance = f
         }

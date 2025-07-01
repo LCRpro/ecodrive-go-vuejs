@@ -20,7 +20,6 @@ func CreateCourse(c *gin.Context) {
 		EndLat         float64 `json:"end_lat"`
 		EndLng         float64 `json:"end_lng"`
 		DistanceKm     float64 `json:"distance_km"`
-		CO2            float64 `json:"co2"`
 	}
 
 	var input CourseInput
@@ -29,26 +28,28 @@ func CreateCourse(c *gin.Context) {
 		return
 	}
 
-	amount := 4.0 + 0.8*input.DistanceKm
+co2Saved := input.DistanceKm * 100 
 
-	if !HasEnoughBalance(input.PassengerID, amount) {
-		c.JSON(400, gin.H{"error": "Solde insuffisant pour commander cette course"})
-		return
-	}
+amount := 4.0 + 0.8*input.DistanceKm
 
-	course := Course{
-		PassengerID:    input.PassengerID,
-		PassengerName:  input.PassengerName,
-		PassengerEmail: input.PassengerEmail,
-		StartLat:       input.StartLat,
-		StartLng:       input.StartLng,
-		EndLat:         input.EndLat,
-		EndLng:         input.EndLng,
-		DistanceKm:     input.DistanceKm,
-		CO2:            input.CO2,
-		Amount:         amount,
-		Status:         "requested",
-	}
+if !HasEnoughBalance(input.PassengerID, amount) {
+    c.JSON(400, gin.H{"error": "Solde insuffisant pour commander cette course"})
+    return
+}
+
+course := Course{
+    PassengerID:    input.PassengerID,
+    PassengerName:  input.PassengerName,
+    PassengerEmail: input.PassengerEmail,
+    StartLat:       input.StartLat,
+    StartLng:       input.StartLng,
+    EndLat:         input.EndLat,
+    EndLng:         input.EndLng,
+    DistanceKm:     input.DistanceKm,
+    CO2:            co2Saved,
+    Amount:         amount,
+    Status:         "requested",
+}
 
 	if err := db.Create(&course).Error; err != nil {
 		c.JSON(500, gin.H{"error": "Erreur lors de la création"})
