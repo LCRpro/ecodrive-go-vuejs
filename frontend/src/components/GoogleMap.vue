@@ -5,9 +5,6 @@
 <script setup>
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 
-const script = document.createElement('script')
-script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&libraries=places`
-document.body.appendChild(script)
 
 
 const props = defineProps({
