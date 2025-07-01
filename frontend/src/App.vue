@@ -1,37 +1,129 @@
 <template>
   <div>
-    <nav>
-      <router-link to="/">Accueil</router-link> |
-      <router-link to="/me" v-if="isLoggedIn">Mon profil</router-link> |
-      <router-link to="/admin" v-if="isAdmin">Admin</router-link>
-    <router-link to="/course" v-if="isLoggedIn">Commander une course</router-link>
-<router-link to="/driver" v-if="isLoggedIn && roles.includes('ROLE_DRIVER')">Courses à prendre</router-link>
-      <BalanceDisplay v-if="isLoggedIn"/>
-      <router-link to="/deposit" v-if="isLoggedIn" style="margin-left:20px;">Déposer</router-link>
-      <router-link to="/withdraw" v-if="isLoggedIn" style="margin-left:10px;">Retirer</router-link>
-      <router-link to="/login" v-if="!isLoggedIn">Connexion</router-link>
-      <button v-if="isLoggedIn" @click="logout" style="margin-left:12px;">Déconnexion</button>
+    <nav class="bg-gray-900 text-white px-4 py-3 flex items-center justify-between shadow-lg">
+      <router-link to="/" class="text-2xl font-semibold tracking-tight hover:text-violet-400 transition-colors">Ecodrive</router-link>
+      <div class="hidden md:flex items-center">
+        <router-link to="/" class="nav-link" exact-active-class="text-violet-400">Accueil</router-link>
+        <span class="separator" />
+        <router-link v-if="isLoggedIn" to="/me" class="nav-link">Mon profil</router-link>
+        <span v-if="isLoggedIn" class="separator" />
+        <router-link v-if="isAdmin" to="/admin" class="nav-link">Admin</router-link>
+        <span v-if="isAdmin" class="separator" />
+        <router-link v-if="isLoggedIn" to="/course" class="nav-link">Commander une course</router-link>
+        <span v-if="isLoggedIn" class="separator" />
+        <router-link v-if="isLoggedIn && isDriver" to="/driver" class="nav-link">Courses à prendre</router-link>
+        <span v-if="isLoggedIn && isDriver" class="separator" />
+        <router-link
+          v-if="isLoggedIn"
+          to="/deposit"
+          class="px-3 py-2 rounded-lg font-semibold bg-emerald-600 hover:bg-emerald-700 transition-colors shadow mx-1"
+        >Déposer</router-link>
+        <span v-if="isLoggedIn" class="separator" />
+        <router-link
+          v-if="isLoggedIn"
+          to="/withdraw"
+          class="px-3 py-2 rounded-lg font-semibold bg-violet-600 hover:bg-violet-700 transition-colors shadow mx-1"
+        >Retirer</router-link>
+        <span v-if="isLoggedIn" class="separator" />
+        <router-link v-if="!isLoggedIn" to="/login" class="nav-link">Connexion</router-link>
+        <span v-if="isLoggedIn || isAdmin || isDriver" class="separator" />
+        <BalanceDisplay v-if="isLoggedIn" class="ml-2" />
+        <button
+          v-if="isLoggedIn"
+          @click="logout"
+          class="ml-2 px-4 py-1 rounded-lg bg-violet-600 hover:bg-violet-700 transition-colors font-semibold"
+        >Déconnexion</button>
+      </div>
+
+      <button @click="isOpen = !isOpen" class="md:hidden focus:outline-none flex items-center" aria-label="Menu">
+        <svg :class="isOpen ? 'rotate-90' : ''" class="w-7 h-7 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path v-if="!isOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
     </nav>
+
+    <transition name="slide-fade">
+      <div
+        v-if="isOpen"
+        class="md:hidden bg-gray-900 text-white px-4 py-2 flex flex-col gap-2 shadow-lg"
+      >
+        <router-link to="/" class="nav-link-mobile" @click="isOpen = false">Accueil</router-link>
+        <router-link to="/me" v-if="isLoggedIn" class="nav-link-mobile" @click="isOpen = false">Mon profil</router-link>
+        <router-link to="/admin" v-if="isAdmin" class="nav-link-mobile" @click="isOpen = false">Admin</router-link>
+        <router-link to="/course" v-if="isLoggedIn" class="nav-link-mobile" @click="isOpen = false">Commander une course</router-link>
+        <router-link to="/driver" v-if="isLoggedIn && isDriver" class="nav-link-mobile" @click="isOpen = false">Courses à prendre</router-link>
+        <router-link to="/deposit" v-if="isLoggedIn" class="w-full text-center py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 font-semibold transition-colors" @click="isOpen = false">Déposer</router-link>
+        <router-link to="/withdraw" v-if="isLoggedIn" class="w-full text-center py-2 rounded-lg bg-violet-600 hover:bg-violet-700 font-semibold transition-colors" @click="isOpen = false">Retirer</router-link>
+        <router-link to="/login" v-if="!isLoggedIn" class="nav-link-mobile" @click="isOpen = false">Connexion</router-link>
+        <BalanceDisplay v-if="isLoggedIn" class="my-2" />
+        <button v-if="isLoggedIn" @click="logout" class="w-full text-left px-2 py-2 rounded-lg bg-violet-600 hover:bg-violet-700 font-semibold transition-colors">Déconnexion</button>
+      </div>
+    </transition>
+
     <router-view />
   </div>
 </template>
+
 <script setup>
-import { computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import BalanceDisplay from './components/BalanceDisplay.vue'
-const router = useRouter()
-const roles = computed(() => {
+
+const isOpen = ref(false)
+const token = ref(localStorage.getItem('token'))
+const roles = ref([])
+
+const refreshAuth = () => {
+  token.value = localStorage.getItem('token')
   try {
-    return JSON.parse(localStorage.getItem('roles') || '[]')
-  } catch { return [] }
+    roles.value = JSON.parse(localStorage.getItem('roles') || '[]')
+  } catch { roles.value = [] }
+}
+onMounted(() => {
+  refreshAuth()
+  window.addEventListener('storage', refreshAuth)
 })
-const isLoggedIn = computed(() => !!localStorage.getItem('token'))
+onUnmounted(() => {
+  window.removeEventListener('storage', refreshAuth)
+})
+const isLoggedIn = computed(() => !!token.value)
 const isAdmin = computed(() => roles.value.includes('ROLE_ADMIN'))
-const isPassager = computed(() => roles.value.includes('ROLE_PASSAGER'))
 const isDriver = computed(() => roles.value.includes('ROLE_DRIVER'))
 
+const router = useRouter()
 function logout() {
   localStorage.clear()
+  refreshAuth()
+  isOpen.value = false
   router.push('/login')
 }
 </script>
+
+<style scoped>
+.nav-link {
+  @apply px-3 py-2 rounded-lg hover:bg-violet-700 transition-colors font-medium;
+}
+.separator {
+  display: inline-block;
+  height: 24px;
+  width: 1.5px;
+  background: #444;
+  margin: 0 0.5rem;
+  vertical-align: middle;
+}
+.nav-link-mobile {
+  @apply px-2 py-2 rounded-md hover:bg-violet-700 transition-colors;
+}
+.slide-fade-enter-active {
+  transition: all 0.2s cubic-bezier(.57,.21,.69,1.25);
+}
+.slide-fade-leave-active {
+  transition: all 0.15s cubic-bezier(.57,.21,.69,1.25);
+}
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-12px);
+}
+</style>

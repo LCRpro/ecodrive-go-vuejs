@@ -10,7 +10,7 @@ import Course from '../views/Course.vue'
 import Driver from '../views/Driver.vue'
 
 const routes = [
-  { path: '/', component: Home, meta: { requiresAuth: true } },
+  { path: '/', component: Home },
   { path: '/login', component: Login },
   { path: '/me', component: Me, meta: { requiresAuth: true } },
   { path: '/admin', component: Admin, meta: { requiresAuth: true, admin: true } },
