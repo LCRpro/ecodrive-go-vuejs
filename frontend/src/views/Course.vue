@@ -304,7 +304,8 @@ async function cancelCourse() {
 }
 
 async function getAddressFromCoords({lat, lng}) {
-  const api = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=AIzaSyDPYFJ83NgzoeH5FJ4es6XgOeoydsrjTks`
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+const api = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_MAPS_API_KEY}`
   const res = await fetch(api)
   const data = await res.json()
   return data.results?.[0]?.formatted_address || ''

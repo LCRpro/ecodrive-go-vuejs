@@ -5,11 +5,16 @@
 <script setup>
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 
+const script = document.createElement('script')
+script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&libraries=places`
+document.body.appendChild(script)
+
+
 const props = defineProps({
   from: Object,              
   to: Object,                
   follow: Boolean,           
-  zoomToCurrent: Boolean,    
+  zoomToCurrent: Boolean,     
   currentPosition: Object    
 })
 
@@ -83,7 +88,7 @@ onMounted(() => {
 
   if (!window.google || !window.google.maps) {
     const script = document.createElement('script')
-    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDPYFJ83NgzoeH5FJ4es6XgOeoydsrjTks&libraries=places`
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&libraries=places`
     script.onload = setupMap
     document.body.appendChild(script)
   } else {
