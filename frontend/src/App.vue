@@ -3,7 +3,9 @@
     <nav>
       <router-link to="/">Accueil</router-link> |
       <router-link to="/me" v-if="isLoggedIn">Mon profil</router-link> |
-      <router-link to="/admin" v-if="isAdmin">Admin</router-link> |
+      <router-link to="/admin" v-if="isAdmin">Admin</router-link>
+    <router-link to="/course" v-if="isLoggedIn">Commander une course</router-link>
+<router-link to="/driver" v-if="isLoggedIn && roles.includes('ROLE_DRIVER')">Courses à prendre</router-link>
       <BalanceDisplay v-if="isLoggedIn"/>
       <router-link to="/deposit" v-if="isLoggedIn" style="margin-left:20px;">Déposer</router-link>
       <router-link to="/withdraw" v-if="isLoggedIn" style="margin-left:10px;">Retirer</router-link>
@@ -18,12 +20,16 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import BalanceDisplay from './components/BalanceDisplay.vue'
 const router = useRouter()
-const isLoggedIn = computed(() => !!localStorage.getItem('token'))
-const isAdmin = computed(() => {
+const roles = computed(() => {
   try {
-    return JSON.parse(localStorage.getItem('roles') || '[]').includes('ROLE_ADMIN')
-  } catch { return false }
+    return JSON.parse(localStorage.getItem('roles') || '[]')
+  } catch { return [] }
 })
+const isLoggedIn = computed(() => !!localStorage.getItem('token'))
+const isAdmin = computed(() => roles.value.includes('ROLE_ADMIN'))
+const isPassager = computed(() => roles.value.includes('ROLE_PASSAGER'))
+const isDriver = computed(() => roles.value.includes('ROLE_DRIVER'))
+
 function logout() {
   localStorage.clear()
   router.push('/login')

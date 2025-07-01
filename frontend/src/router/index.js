@@ -6,6 +6,8 @@ import Admin from '../views/Admin.vue'
 import Callback from '../views/Callback.vue'
 import Deposit from '../views/Deposit.vue'
 import Withdraw from '../views/Withdraw.vue'
+import Course from '../views/Course.vue'
+import Driver from '../views/Driver.vue'
 
 const routes = [
   { path: '/', component: Home, meta: { requiresAuth: true } },
@@ -14,6 +16,8 @@ const routes = [
   { path: '/admin', component: Admin, meta: { requiresAuth: true, admin: true } },
   { path: '/deposit', component: Deposit, meta: { requiresAuth: true } },
   { path: '/withdraw', component: Withdraw, meta: { requiresAuth: true } },
+  { path: '/course', component: Course, meta: { requiresAuth: true } },
+  { path: '/driver', component: Driver, meta: { requiresAuth: true } },
   { path: '/callback', component: Callback },
   { path: '/:pathMatch(.*)*', redirect: '/' }
 ]
@@ -29,6 +33,10 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !token) {
     next('/login')
   } else if (to.meta.admin && !roles.includes('ROLE_ADMIN')) {
+    next('/')
+  } else if (to.meta.passager && !roles.includes('ROLE_PASSAGER')) {
+    next('/')
+  } else if (to.meta.driver && !roles.includes('ROLE_DRIVER')) {
     next('/')
   } else if ((to.path === '/login' || to.path === '/callback') && token) {
     next('/')
