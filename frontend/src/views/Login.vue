@@ -1,12 +1,21 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-950 to-violet-900">
-    <div class="w-full max-w-sm p-8 bg-gray-900 bg-opacity-90 rounded-2xl shadow-2xl border border-gray-800">
-      <h2 class="text-3xl font-bold text-white mb-2 text-center">Connexion</h2>
-      <p class="text-gray-400 mb-6 text-center">Accédez à votre espace sécurisé EcoDrive</p>
-      
+    <div class="w-full max-w-sm p-8 bg-gray-900/90 rounded-2xl shadow-2xl border border-gray-800 relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-tr from-emerald-700/20 via-violet-700/10 to-yellow-500/10 blur-xl pointer-events-none" />
+      <h2 class="text-3xl font-extrabold text-white mb-2 text-center drop-shadow bg-gradient-to-r from-violet-400 to-emerald-400 bg-clip-text text-transparent">
+        Connexion
+      </h2>
+      <p class="text-gray-400 mb-5 text-center">Accédez à votre espace sécurisé EcoDrive</p>
+      <div class="relative mb-8">
+        <div class="bg-gradient-to-br from-emerald-700/40 via-violet-700/40 to-white/10 backdrop-blur-lg text-emerald-200 text-[15px] rounded-xl p-4 pt-6 border border-violet-700 shadow-lg text-center font-medium">
+          Connectez-vous pour commander vos trajets et gérer votre solde.<br>
+          <span class="block mt-2 text-violet-200 font-semibold">Conducteur&nbsp;?</span>
+          <span class="text-white/90">Prenez des courses, touchez vos gains et accédez à vos statistiques.</span>
+        </div>
+      </div>
       <button
         @click="googleLogin"
-        class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white text-gray-900 font-semibold shadow hover:bg-gray-100 transition"
+        class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-400 to-violet-500 text-white font-bold shadow-lg hover:scale-[1.025] hover:shadow-emerald-600/40 active:scale-100 transition"
       >
         <svg class="w-6 h-6" viewBox="0 0 24 24">
           <g>
@@ -18,7 +27,6 @@
         </svg>
         Se connecter avec Google
       </button>
-      
       <div v-if="error" class="mt-6 text-red-500 text-center">{{ error }}</div>
     </div>
   </div>
