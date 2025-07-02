@@ -11,7 +11,7 @@
           <input
             type="number"
             min="10"
-            step="0.01"
+            step="1"
             v-model.number="amount"
             placeholder="Min 10€"
             class="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:bg-gray-900 shadow-md font-semibold transition-all duration-200 font-mono"
