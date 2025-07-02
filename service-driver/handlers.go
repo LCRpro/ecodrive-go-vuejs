@@ -238,3 +238,26 @@ go creditAppAccount(appShare)
     db.Save(&course)
     c.JSON(200, course)
 }
+
+func PatchCourse(c *gin.Context) {
+    var update map[string]interface{}
+    idU64, err := strconv.ParseUint(c.Param("id"), 10, 64)
+    if err != nil {
+        c.JSON(400, gin.H{"error": "ID invalide"})
+        return
+    }
+    if err := c.ShouldBindJSON(&update); err != nil {
+        c.JSON(400, gin.H{"error": "bad input"})
+        return
+    }
+    var course Course
+    if err := db.Where("id = ?", idU64).First(&course).Error; err != nil {
+        c.JSON(404, gin.H{"error": "not found"})
+        return
+    }
+    if err := db.Model(&course).Updates(update).Error; err != nil {
+        c.JSON(500, gin.H{"error": "update failed"})
+        return
+    }
+    c.JSON(200, course)
+}

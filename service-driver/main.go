@@ -41,6 +41,7 @@ func main() {
 	r.PATCH("/courses/:id/cancel", CancelCourse)
 r.PATCH("/courses/:id/start", StartCourse)
 r.PATCH("/courses/:id/complete", CompleteCourse)
+r.PATCH("/courses/:id", PatchCourse)
 	r.Run(":8006")
 }
 
