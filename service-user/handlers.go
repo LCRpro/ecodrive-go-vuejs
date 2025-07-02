@@ -197,3 +197,21 @@ func CreditAppAccount(c *gin.Context) {
     }
     c.JSON(200, app)
 }
+
+
+func PatchDriverRequest(c *gin.Context) {
+    id := c.Param("id")
+    var req DriverRequest
+    if err := db.First(&req, id).Error; err != nil {
+        c.JSON(404, gin.H{"error": "not found"})
+        return
+    }
+    var input map[string]interface{}
+    if err := c.ShouldBindJSON(&input); err != nil {
+        c.JSON(400, gin.H{"error": "bad input"})
+        return
+    }
+    db.Model(&req).Updates(input)
+    db.First(&req, id)
+    c.JSON(200, req)
+}
