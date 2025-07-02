@@ -1,11 +1,12 @@
 <template>
-  <div ref="mapDiv" style="width:100%;height:400px;border-radius:12px;"></div>
+  <div class="w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden shadow-lg border border-gray-800 bg-gray-900">
+    <div ref="mapDiv" class="w-full h-full"></div>
+  </div>
 </template>
+
 
 <script setup>
 import { ref, watch, onMounted, onUnmounted } from 'vue'
-
-
 
 const props = defineProps({
   from: Object,              
@@ -66,20 +67,16 @@ function updateMyMarker(coords) {
 onMounted(() => {
   function setupMap() {
     map = new window.google.maps.Map(mapDiv.value, {
-      center: props.from || { lat: 48.86, lng: 2.35 },
+      center: props.currentPosition || props.from || { lat: 48.86, lng: 2.35 },
       zoom: 13
     })
+
     if (props.from && props.to) drawRoute(props.from, props.to)
     else if (props.from) centerMap(props.from)
 
-    if (props.follow && navigator.geolocation) {
-      watchId = navigator.geolocation.watchPosition(
-        pos => {
-          const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude }
-          updateMyMarker(coords)
-          centerMap(coords, 16)
-        }
-      )
+    if (props.currentPosition) {
+      updateMyMarker(props.currentPosition)
+      centerMap(props.currentPosition, 15)
     }
   }
 
@@ -97,15 +94,16 @@ onUnmounted(() => {
   if (watchId) navigator.geolocation.clearWatch(watchId)
 })
 
-watch(() => [props.from, props.to], ([from, to]) => {
-  if (from && to && map && window.google) drawRoute(from, to)
-  else if (from && map && window.google) centerMap(from)
-})
-
 watch(() => props.currentPosition, (pos) => {
   if (pos && map && window.google) {
     updateMyMarker(pos)
+    centerMap(pos, 15)
   }
+})
+
+watch(() => [props.from, props.to], ([from, to]) => {
+  if (from && to && map && window.google) drawRoute(from, to)
+  else if (from && map && window.google) centerMap(from)
 })
 
 watch(

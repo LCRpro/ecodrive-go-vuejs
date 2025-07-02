@@ -62,8 +62,25 @@ course := Course{
 func ListCourses(c *gin.Context) {
 	role := c.Query("role")
 	id := c.Query("id")
+	driverView := c.Query("driverView")
+	driverID := c.Query("driver_id")
+	status := c.Query("status")
 	var courses []Course
-	if role == "passenger" && id != "" {
+
+	if driverView == "1" && driverID != "" {
+	
+		db.Where("driver_id = ? AND (status = ? OR status = ?)", driverID, "accepted", "in_progress").
+			Order("created_at desc").Find(&courses)
+		if len(courses) > 0 {
+			c.JSON(200, courses)
+			return
+		}
+		db.Where("status = ?", "requested").Order("created_at desc").Find(&courses)
+		c.JSON(200, courses)
+		return
+	} else if status != "" {
+		db.Where("status = ?", status).Order("created_at desc").Find(&courses)
+	} else if role == "passenger" && id != "" {
 		db.Where("passenger_id = ?", id).Order("created_at desc").Find(&courses)
 	} else if role == "driver" && id != "" {
 		db.Where("driver_id = ?", id).Order("created_at desc").Find(&courses)
