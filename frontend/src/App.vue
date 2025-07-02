@@ -62,6 +62,17 @@
     </transition>
 
     <router-view />
+
+
+<footer class="w-full bg-gray-900 text-gray-400 pt-6 pb-8 px-6 flex flex-col md:flex-row items-center justify-between border-t border-gray-800 gap-3">
+  <div class="text-sm text-center md:text-left">
+    &copy; {{ new Date().getFullYear() }} Ecodrive. Tous droits réservés.
+  </div>
+  <div class="flex flex-col md:flex-row gap-2 md:gap-6 text-sm">
+    <router-link to="/mentions" class="hover:text-violet-400 underline transition">Mentions légales</router-link>
+    <router-link to="/conditions" class="hover:text-violet-400 underline transition">Conditions générales de vente</router-link>
+  </div>
+</footer>
   </div>
 </template>
 
