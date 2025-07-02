@@ -1,7 +1,16 @@
 <template>
   <div>
     <nav class="bg-gray-900 text-white px-4 py-3 flex items-center justify-between shadow-lg">
-      <router-link to="/" class="text-2xl font-semibold tracking-tight hover:text-violet-400 transition-colors">Ecodrive</router-link>
+<router-link to="/" class="flex items-center gap-3 group select-none">
+  <img
+    src="/logo-ecodrive.png"
+    alt="Logo EcoDrive"
+    class="w-12 h-12 rounded-full shadow-lg border-2 border-emerald-400 group-hover:scale-110 group-hover:shadow-emerald-600 transition-transform duration-200 bg-white object-cover"
+  />
+  <span class="text-3xl font-extrabold font-mono bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-300 bg-clip-text text-transparent drop-shadow group-hover:brightness-110 transition-colors">
+    Eco<span class="text-violet-400">Drive</span>
+  </span>
+</router-link>
       <div class="hidden md:flex items-center">
         <router-link to="/" class="nav-link" exact-active-class="text-violet-400">Accueil</router-link>
         <span class="separator" />
@@ -26,8 +35,7 @@
         >Retirer</router-link>
         <span v-if="isLoggedIn" class="separator" />
         <router-link v-if="!isLoggedIn" to="/login" class="nav-link">Connexion</router-link>
-        <span v-if="isLoggedIn || isAdmin || isDriver" class="separator" />
-        <BalanceDisplay v-if="isLoggedIn" class="ml-2" />
+        <BalanceDisplay v-if="isLoggedIn" class="ml-2 mr-2" />
         <button
           v-if="isLoggedIn"
           @click="logout"
