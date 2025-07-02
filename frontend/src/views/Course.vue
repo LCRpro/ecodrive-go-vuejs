@@ -1,35 +1,143 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-950 to-violet-900 flex flex-col md:flex-row items-center justify-center px-2 py-10 gap-8">
-    <CourseInfo
-      :activeCourse="activeCourse"
-      :startAddress="startAddress"
-      :endAddress="endAddress"
-      :duration="duration"
-      :canCancel="canCancel"
-      :cancelError="cancelError"
-      v-model:search="search"
-      :suggestions="suggestions"
-      :destination="destination"
-      :error="error"
-      :price="price"
-      :km="km"
-      @refresh="fetchActiveCourse"
-    />
-    <CourseMap
-      :from="mapFrom"
-      :to="mapTo"
-      :follow="activeCourse && activeCourse.status === 'in_progress'"
-      :zoomToCurrent="zoomOnMe"
-      :currentPosition="myPosition"
-    />
+    <div class="w-full max-w-sm p-7 rounded-2xl shadow-2xl bg-gray-900 bg-opacity-90 border border-gray-800 mb-8 md:mb-0">
+      <template v-if="activeCourse">
+        <h2 class="text-white text-2xl font-bold mb-6">Course</h2>
+       <div class="bg-gradient-to-r from-gray-800/90 via-gray-900/95 to-violet-950/70 rounded-xl px-6 py-5 mb-3 shadow-inner border border-gray-800 space-y-4">
+  <div class="flex items-center justify-between">
+    <span class="text-xs text-gray-400 uppercase tracking-widest font-bold">Départ</span>
+    <span class="text-emerald-400 font-mono text-base font-semibold text-right">
+      {{ startAddress || 'Chargement...' }}
+    </span>
+  </div>
+  <div class="flex items-center justify-between">
+    <span class="text-xs text-gray-400 uppercase tracking-widest font-bold">Arrivée</span>
+    <span class="text-violet-400 font-mono text-base font-semibold text-right">
+      {{ endAddress || 'Chargement...' }}
+    </span>
+  </div>
+  <div class="flex items-center justify-between">
+    <span class="text-xs text-gray-400 uppercase tracking-widest font-bold">Distance</span>
+    <span class="font-mono text-blue-200 text-base font-semibold text-right">
+      <span class="inline-block bg-blue-900/70 px-2 py-1 rounded-md">{{ activeCourse.distance_km }} km</span>
+    </span>
+  </div>
+  <div class="flex items-center justify-between">
+    <span class="text-xs text-gray-400 uppercase tracking-widest font-bold">Durée</span>
+    <span class="font-mono text-cyan-200 text-base font-semibold text-right">
+      <span class="inline-block bg-cyan-900/60 px-2 py-1 rounded-md">{{ duration || '...' }}</span>
+    </span>
+  </div>
+  <div class="flex items-center justify-between">
+    <span class="text-xs text-gray-400 uppercase tracking-widest font-bold">Prix</span>
+    <span class="font-mono text-amber-300 text-lg font-bold text-right">
+      <span class="inline-block bg-amber-800/80 px-3 py-1 rounded-lg">{{ activeCourse.amount }} €</span>
+    </span>
+  </div>
+  <div class="flex items-center justify-between">
+    <span class="text-xs text-gray-400 uppercase tracking-widest font-bold">Statut</span>
+    <span>
+      <span
+        v-if="activeCourse.status === 'requested'"
+        class="inline-block px-3 py-1 rounded-full bg-amber-600 text-white text-xs font-semibold"
+      >En attente</span>
+      <span
+        v-else-if="activeCourse.status === 'accepted'"
+        class="inline-block px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-semibold"
+      >Prise en charge</span>
+      <span
+        v-else-if="activeCourse.status === 'in_progress'"
+        class="inline-block px-3 py-1 rounded-full bg-blue-600 text-white text-xs font-semibold"
+      >En cours</span>
+      <span
+        v-else-if="activeCourse.status === 'completed'"
+        class="inline-block px-3 py-1 rounded-full bg-violet-700 text-white text-xs font-semibold"
+      >Terminée</span>
+      <span
+        v-else-if="activeCourse.status === 'cancelled'"
+        class="inline-block px-3 py-1 rounded-full bg-rose-700 text-white text-xs font-semibold"
+      >Annulée</span>
+      <span
+        v-else
+        class="inline-block px-3 py-1 rounded-full bg-gray-700 text-gray-200 text-xs font-semibold"
+      >{{ displayStatus(activeCourse.status) }}</span>
+    </span>
+  </div>
+</div>
+        <button 
+          v-if="canCancel" 
+          @click="cancelCourse" 
+          class="w-full py-3 rounded-lg bg-red-600 hover:bg-red-700 text-white text-lg font-bold shadow transition mt-6"
+        >
+          Annuler la course
+        </button>
+        <button 
+          @click="fetchActiveCourse" 
+          class="w-full py-3 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-lg font-bold shadow transition mt-4"
+        >
+          Rafraîchir
+        </button>
+        <div v-if="cancelError" class="mt-4 rounded-lg bg-red-700 bg-opacity-80 text-white p-3 text-center font-semibold">
+          {{ cancelError }}
+        </div>
+      </template>
+      <template v-else>
+        <h2 class="text-white text-2xl font-bold mb-6">Commander une course</h2>
+        <div class="mb-4">
+          <label class="text-gray-300 mb-1 block">Destination :</label>
+          <input
+            ref="inputRef"
+            v-model="search"
+            @input="searchAddr"
+            placeholder="Ex: 6 rue de Paris..."
+            autocomplete="off"
+            class="bg-gray-800 border border-gray-700 text-white placeholder-gray-400 rounded-lg px-4 py-3 mb-3 w-full focus:outline-none focus:ring-2 focus:ring-violet-500"
+          />
+          <ul v-if="suggestions.length" class="bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-auto absolute z-50 w-full text-white">
+            <li 
+              v-for="addr in suggestions" 
+              :key="addr.place_id" 
+              @click="pickSuggestion(addr)" 
+              class="cursor-pointer px-4 py-3 hover:bg-violet-700 transition"
+            >
+              {{ addr.description }}
+            </li>
+          </ul>
+        </div>
+        <button 
+          @click="requestCourse" 
+          :disabled="!destination" 
+          class="w-full py-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-lg font-bold shadow transition disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Valider
+        </button>
+        <div v-if="error" class="mt-4 rounded-lg bg-red-700 bg-opacity-80 text-white p-3 text-center font-semibold">
+          {{ error }}
+        </div>
+        <div v-if="price" class="mt-6 text-gray-300 space-y-1">
+          <div class="font-bold text-white">Prix estimé : <span class="font-mono">{{ price }} €</span></div>
+          <div v-if="km">Distance : <span class="font-mono">{{ km }} km</span></div>
+          <div v-if="duration">Durée estimée : <span class="font-mono">{{ duration }}</span></div>
+        </div>
+      </template>
+    </div>
+    <div class="w-full max-w-4xl bg-gray-900 bg-opacity-80 border border-gray-800 rounded-2xl shadow-2xl p-3 h-full flex items-center justify-center">
+      <GoogleMap
+        :from="mapFrom"
+        :to="mapTo"
+        :follow="activeCourse && activeCourse.status === 'in_progress'"
+        :zoomToCurrent="zoomOnMe"
+        :currentPosition="myPosition"
+        class="w-full h-[500px] rounded-2xl"
+      />
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 import GoogleMap from '../components/GoogleMap.vue'
-import CourseInfo from '../components/CourseInfo.vue'
-import CourseMap from '../components/CourseMap.vue'
+
 const myPosition = ref(null)
 const zoomOnMe = ref(false)
 const activeCourse = ref(null)

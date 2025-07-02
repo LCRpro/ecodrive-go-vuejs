@@ -2,29 +2,22 @@
   <div
     class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-950 to-violet-900 px-2 py-10">
     <div class="w-full max-w-6xl">
-      <!-- Statistiques utilisateur -->
       <UserStatsCards :balance="user?.balance?.toFixed(2) ?? '0.00'" :co2-passenger="co2Passenger"
         :co2-driver="co2Driver" :km-passenger="kmPassenger" :km-driver="kmDriver" class="mb-8" />
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <!-- Carte profil -->
         <UserInfoCard v-if="user" :user="user" @updateProfile="updateProfile" />
-        <!-- Demande driver -->
         <DriverRequestCard :driver-request="driverRequest" :user="user" @openModal="openDriverModal" />
-        <!-- Historique des transactions -->
         <div class="md:col-span-2">
           <TransactionHistory />
         </div>
       </div>
 
-      <!-- Tableau des courses passager -->
       <CoursesCard v-if="passengerCourses.length" :courses="passengerCourses" :names="driverNames" mode="passenger"
         class="mb-8" />
-      <!-- Tableau des courses driver -->
       <CoursesCard v-if="user?.roles?.includes('ROLE_DRIVER') && driverCourses.length" :courses="driverCourses"
         :names="passengerNames" mode="driver" class="mb-8" />
 
-      <!-- Modal Demande driver -->
       <div v-if="showModal" class="fixed inset-0 flex items-center justify-center z-50 bg-black/60">
         <div
           class="bg-gradient-to-br from-gray-900/95 via-gray-900/90 to-violet-950/80 border border-gray-800 p-8 rounded-2xl shadow-2xl min-w-[320px] w-full max-w-md relative animate-fade-in">
