@@ -1,98 +1,41 @@
 <template>
-  <div>
-    <h2>Panel Admin</h2>
-    <div v-if="appBalance !== null" style="margin-bottom: 16px;">
-  <b>Solde de la plateforme :</b> {{ appBalance.toFixed(2) }} €
-</div>
-    <div v-if="loading">Chargement...</div>
-    <div v-else>
-      <table border="1" cellpadding="5">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Email</th>
-            <th>Nom</th>
-            <th>Rôles</th>
-            <th>Voiture</th>
-            <th>Plaque</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="u in users" :key="u.id">
-            <td>{{ u.id }}</td>
-            <td>{{ u.email }}</td>
-            <td>{{ u.name }}</td>
-            <td>{{ JSON.parse(u.roles || "[]").join(", ") }}</td>
-            <td>{{ u.car || '-' }}</td>
-            <td>{{ u.plate || '-' }}</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3 style="margin-top:32px;">Demandes driver</h3>
-      <table border="1" cellpadding="5">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nom</th>
-            <th>Email</th>
-            <th>Voiture</th>
-            <th>Plaque</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="req in driverRequests" :key="req.ID">
-            <td>{{ req.ID }}</td>
-<td>{{ getUserByGoogleId(req.google_id || req.GoogleID)?.name || '-' }}</td>
-<td>{{ getUserByGoogleId(req.google_id || req.GoogleID)?.email || '-' }}</td>
-            <td>{{ req.car }}</td>
-            <td>{{ req.plate }}</td>
-            <td>{{ req.status }}</td>
-            <td>
-              <button v-if="req.status === 'pending'" @click="handleRequest(req.ID, 'accept')">Accepter</button>
-              <button v-if="req.status === 'pending'" @click="handleRequest(req.ID, 'refuse')" style="margin-left:8px;">Refuser</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  <div
+    class="min-h-screen flex flex-col items-center bg-gradient-to-br from-gray-900 via-gray-950 to-violet-900 px-2 py-10">
+    <div class="w-full max-w-7xl">
+      <h2 class="text-3xl font-bold mb-6 text-white">Panel Admin</h2>
+      <div v-if="appBalance !== null" class="mb-6">
+        <div
+          class="bg-gradient-to-br from-gray-900/95 via-gray-900/90 to-violet-950/80 rounded-2xl shadow-xl border border-gray-800 px-8 py-6 flex flex-col items-center justify-center mb-8">
+          <div class="text-lg text-gray-400 mb-2 font-medium">Chiffre d'affaires</div>
+          <div class="text-3xl font-extrabold text-emerald-400 font-mono">{{ appBalance.toFixed(2) }} €</div>
+        </div>
+      </div>
+      <div v-if="loading" class="text-gray-400">Chargement...</div>
+      <div v-else>
+        <AdminUserTable :users="users" />
+        <AdminDriverRequests :driverRequests="driverRequests" :getUserByGoogleId="getUserByGoogleId"
+          @handleRequest="handleRequest" />
+        <AdminTransactions :transactions="transactions" :getUserByGoogleId="getUserByGoogleId" />
+        <AdminCoursesTable :courses="courses" :getUserByGoogleId="getUserByGoogleId" />
+      </div>
     </div>
   </div>
-
-  <h3 style="margin-top:32px;">Transactions</h3>
-<table border="1" cellpadding="5" v-if="transactions.length">
-  <thead>
-    <tr>
-      <th>Date</th>
-      <th>Utilisateur</th>
-      <th>Type</th>
-      <th>Montant (€)</th>
-      <th>Détails</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr v-for="tx in transactions" :key="tx.id">
-      <td>{{ new Date(tx.created_at).toLocaleString() }}</td>
-      <td>
-        {{ getUserByGoogleId(tx.google_id)?.email || tx.google_id }}
-      </td>
-      <td>{{ tx.type === 'deposit' ? 'Dépôt' : 'Retrait' }}</td>
-      <td>{{ tx.amount.toFixed(2) }}</td>
-      <td v-if="tx.type === 'deposit'">Carte</td>
-      <td v-else>IBAN : {{ tx.iban_mask }}</td>
-    </tr>
-  </tbody>
-</table>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import AdminUserTable from '../components/AdminUserTable.vue'
+import AdminDriverRequests from '../components/AdminDriverRequests.vue'
+import AdminTransactions from '../components/AdminTransactions.vue'
+import AdminCoursesTable from '../components/AdminCoursesTable.vue'
+
+const courses = ref([])
 const router = useRouter()
 const appBalance = ref(null)
 const users = ref([])
 const driverRequests = ref([])
+const transactions = ref([])
 const loading = ref(true)
 
 onMounted(async () => {
@@ -105,7 +48,17 @@ onMounted(async () => {
   await fetchUsers()
   await fetchDriverRequests()
   await fetchAppBalance()
+  await fetchTransactions()
+  await fetchCourses()
 })
+
+async function fetchCourses() {
+  const token = localStorage.getItem('token')
+  const res = await fetch('http://localhost:8006/courses', {
+    headers: { Authorization: 'Bearer ' + token }
+  })
+  courses.value = res.ok ? await res.json() : []
+}
 
 async function fetchUsers() {
   loading.value = true
@@ -148,20 +101,11 @@ async function fetchAppBalance() {
   }
 }
 
-const transactions = ref([])
-onMounted(async () => {
+async function fetchTransactions() {
   const token = localStorage.getItem('token')
   const res = await fetch('http://localhost:8004/transactions', {
     headers: { Authorization: 'Bearer ' + token }
   })
   transactions.value = res.ok ? await res.json() : []
-})
-</script>
-
-<style>
-.modal-bg {
-  position: fixed; left: 0; top: 0; width: 100vw; height: 100vh;
-  background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center;
 }
-.modal { background: #fff; padding: 24px; border-radius: 8px; min-width: 250px; }
-</style>
+</script>
