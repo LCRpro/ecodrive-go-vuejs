@@ -23,6 +23,10 @@
             <th
               class="bg-gray-800 text-violet-200 font-semibold text-center border border-gray-700 px-3 py-2 md:px-4 md:py-3">
               Plaque</th>
+            <th
+              class="bg-gray-800 text-violet-200 font-semibold text-center border border-gray-700 px-3 py-2 md:px-4 md:py-3">
+              Actions</th>
+
           </tr>
         </thead>
         <tbody>
@@ -39,12 +43,107 @@
             </td>
             <td class="text-gray-200 border border-gray-700 text-center px-3 py-2 md:px-4 md:py-3">{{ u.plate || '-' }}
             </td>
+            <td class="text-gray-200 border border-gray-700 text-center px-3 py-2 md:px-4 md:py-3">
+              <button @click="openEdit(u)" class="text-violet-400 hover:text-violet-200">✏️</button>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
+
+  <div v-if="showModal" class="modal-bg">
+    <div class="modal">
+      <h4 class="text-lg mb-3">Modifier utilisateur #{{ editingUser?.id }}</h4>
+      <div class="mb-2">
+        <label>Nom :</label>
+        <input v-model="editForm.name" class="input" />
+      </div>
+      <div class="mb-2">
+        <label>Email :</label>
+        <input v-model="editForm.email" class="input" />
+      </div>
+      <div class="mb-2">
+        <label>Voiture :</label>
+        <input v-model="editForm.car" class="input" />
+      </div>
+      <div class="mb-2">
+        <label>Plaque :</label>
+        <input v-model="editForm.plate" class="input" />
+      </div>
+      <div class="mb-2">
+        <label>Solde (€) :</label>
+        <input type="number" v-model.number="editForm.balance" min="0" step="0.01" class="input" />
+      </div>
+      <div class="mb-2">
+        <label>Rôles (JSON) :</label>
+        <input v-model="editForm.roles" class="input" />
+      </div>
+      <div class="flex gap-3 mt-4">
+        <button @click="saveEdit" class="btn bg-violet-700 text-white px-4 py-2 rounded">Enregistrer</button>
+        <button @click="closeModal" class="btn bg-gray-700 text-white px-4 py-2 rounded">Annuler</button>
+      </div>
+      <div v-if="error" class="text-red-500 mt-2">{{ error }}</div>
+    </div>
+  </div>
 </template>
 <script setup>
-defineProps(['users'])
+import { ref, reactive, watch } from 'vue'
+
+const props = defineProps(['users'])
+const emit = defineEmits(['refresh'])
+
+const showModal = ref(false)
+const editingUser = ref(null)
+const editForm = reactive({
+  name: '',
+  email: '',
+  car: '',
+  plate: '',
+  balance: 0,
+  roles: ''
+})
+const error = ref('')
+
+function openEdit(user) {
+  editingUser.value = user
+  editForm.name = user.name || ''
+  editForm.email = user.email || ''
+  editForm.car = user.car || ''
+  editForm.plate = user.plate || ''
+  editForm.balance = user.balance ?? 0
+  editForm.roles = user.roles || '["ROLE_PASSAGER"]'
+  showModal.value = true
+  error.value = ''
+}
+
+function closeModal() {
+  showModal.value = false
+  editingUser.value = null
+}
+
+async function saveEdit() {
+  error.value = ''
+  let rolesJson = editForm.roles
+  try { JSON.parse(rolesJson) } catch { error.value = 'Rôles doit être un JSON valide'; return }
+  const googleId = editingUser.value.google_id
+  const res = await fetch(`http://localhost:8002/users/${googleId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: editForm.name,
+      email: editForm.email,
+      car: editForm.car,
+      plate: editForm.plate,
+      balance: editForm.balance,
+      roles: editForm.roles
+    })
+  })
+  if (res.ok) {
+    showModal.value = false
+    emit('refresh')
+  } else {
+    error.value = 'Erreur lors de la sauvegarde'
+  }
+}
 </script>
