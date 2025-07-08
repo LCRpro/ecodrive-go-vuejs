@@ -216,6 +216,7 @@ async function updateProfile() {
     body: JSON.stringify({
       Birthdate: user.value.birthdate,
       Gender: user.value.gender,
+      Phone: user.value.phone,
     })
   })
   if (res.ok) alert('Mise à jour OK')
