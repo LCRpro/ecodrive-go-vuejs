@@ -10,6 +10,7 @@ import Course from '../views/Course.vue'
 import Driver from '../views/Driver.vue'
 import Mentions from '../views/Mentions.vue'
 import Conditions from '../views/Conditions.vue'
+import Support from '../views/SupportView.vue'
 
 const routes = [
   { path: '/', component: Home },
@@ -20,6 +21,7 @@ const routes = [
   { path: '/withdraw', component: Withdraw, meta: { requiresAuth: true } },
   { path: '/course', component: Course, meta: { requiresAuth: true } },
   { path: '/driver', component: Driver, meta: { requiresAuth: true } },
+  { path: '/support', component: Support, meta: { requiresAuth: true } },
   { path: '/mentions', component: Mentions },
   { path: '/conditions', component: Conditions },
   { path: '/callback', component: Callback },

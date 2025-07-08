@@ -22,6 +22,8 @@
         <span v-if="isLoggedIn" class="separator" />
         <router-link v-if="isLoggedIn && isDriver" to="/driver" class="nav-link">Courses à prendre</router-link>
         <span v-if="isLoggedIn && isDriver" class="separator" />
+        <router-link v-if="isLoggedIn" to="/support" class="nav-link">Support</router-link>
+        <span v-if="isLoggedIn && isDriver" class="separator" />
         <router-link
           v-if="isLoggedIn"
           to="/deposit"
