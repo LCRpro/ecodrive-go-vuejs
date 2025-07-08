@@ -8,6 +8,7 @@ type User struct {
     Roles     string  `gorm:"type:text" json:"roles"`
     Birthdate string  `gorm:"size:191" json:"birthdate"`
     Gender    string  `gorm:"size:191" json:"gender"`
+    Phone     string  `gorm:"size:20" json:"phone"`
     Car       string  `gorm:"size:191" json:"car"`
     Plate     string  `gorm:"size:191" json:"plate"`
     Balance   float64 `gorm:"default:0" json:"balance"` 
