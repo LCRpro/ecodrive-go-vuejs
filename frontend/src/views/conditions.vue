@@ -22,7 +22,7 @@
           <span class="font-bold text-white">Protection des données :</span> Les données personnelles sont traitées conformément à la législation en vigueur et ne sont jamais revendues à des tiers.
         </li>
         <li>
-          <span class="font-bold text-white">Contact :</span> Pour toute question, contactez-nous à <a href="mailto:contact@ecodrive.fr" class="text-violet-300 underline">contact@ecodrive.fr</a>.
+          <span class="font-bold text-white">Contact :</span> Pour toute question, contactez-nous à <a href="mailto:contact@ecodrive.fr" class="text-violet-300 underline">contact[a]ecodrive.fr</a>.
         </li>
       </ol>
       <p class="text-gray-500 text-xs mt-4">
