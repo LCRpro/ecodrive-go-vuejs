@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-950 to-violet-900 flex flex-col md:flex-row items-center justify-center px-2 py-10 gap-8">
     <div class="w-full max-w-sm p-7 rounded-2xl shadow-2xl bg-gray-900 bg-opacity-90 border border-gray-800 mb-8 md:mb-0">
       <template v-if="activeCourse">
-        <h2 class="text-white text-2xl font-bold mb-6">Course</h2>
+        <h2 class="text-white text-2xl font-extrabold bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg text-center mb-6">Course</h2>
        <div class="bg-gradient-to-r from-gray-800/90 via-gray-900/95 to-violet-950/70 rounded-xl px-6 py-5 mb-3 shadow-inner border border-gray-800 space-y-4">
   <div class="flex items-center justify-between">
     <span class="text-xs text-gray-400 uppercase tracking-widest font-bold">Départ</span>

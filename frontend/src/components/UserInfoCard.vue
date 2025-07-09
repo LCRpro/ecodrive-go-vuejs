@@ -1,7 +1,7 @@
 <template>
   <div
     class="bg-gradient-to-br from-gray-900/95 via-gray-900/90 to-violet-950/80 rounded-2xl shadow-xl border border-gray-800 p-7 mb-4">
-    <h2 class="text-2xl font-bold mb-5 text-white">Mon profil</h2>
+    <h2 class="text-2xl font-bold mb-5 font-extrabold bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg text-center">Mon profil</h2>
     <div class="space-y-5">
       <div>
         <label class="block text-gray-400 text-sm mb-1">Email</label>

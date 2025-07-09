@@ -8,7 +8,7 @@
         <circle cx="7" cy="18" r="2" fill="#d1d5db" />
         <circle cx="17" cy="18" r="2" fill="#d1d5db" />
       </svg>
-      <h2 class="text-2xl font-bold text-white">Devenir driver</h2>
+      <h2 class="text-2xl font-bold font-extrabold bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg text-center">Devenir driver</h2>
     </div>
     <div v-if="driverRequest">
       <div class="flex items-center gap-2 mb-4">

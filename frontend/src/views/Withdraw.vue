@@ -8,7 +8,7 @@
           <rect width="6" height="2" x="4" y="13" fill="#d1d5db"/>
           <rect width="4" height="2" x="14" y="13" fill="#a78bfa"/>
         </svg>
-        <h2 class="text-2xl font-bold text-white tracking-tight">Retrait</h2>
+        <h2 class="text-2xl font-bold font-extrabold bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg text-center">Retrait</h2>
       </div>
       <form @submit.prevent="submit" autocomplete="off" class="space-y-5">
         <div>

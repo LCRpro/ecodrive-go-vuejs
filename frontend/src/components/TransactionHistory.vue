@@ -1,6 +1,6 @@
 <template>
   <div class="bg-gray-900 bg-opacity-90 rounded-2xl shadow-lg border border-gray-800 p-6 mb-4 mt-8">
-    <h3 class="text-xl font-bold mb-4 text-white">Historique de mes transactions</h3>
+    <h3 class="text-xl font-bold mb-4 font-extrabold bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg text-center">Historique de mes transactions</h3>
     <div v-if="loading" class="text-gray-400 mb-4">Chargement...</div>
     <div v-else>
       <div class="overflow-x-auto w-full">

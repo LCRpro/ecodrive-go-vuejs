@@ -1,9 +1,11 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-950 to-violet-900 px-2 py-10">
+    
     <div class="w-full max-w-sm mx-auto p-7 rounded-2xl shadow-2xl bg-gray-900 bg-opacity-90 border border-gray-800">
+      
       <div class="flex items-center gap-3 mb-6">
         <svg class="w-10 h-10 text-violet-400" fill="none" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="3" fill="#fff"/><rect width="20" height="14" x="2" y="5" rx="3" stroke="#7c3aed" stroke-width="1.5"/><rect width="6" height="2" x="4" y="13" fill="#d1d5db"/><rect width="4" height="2" x="14" y="13" fill="#a78bfa"/></svg>
-        <h2 class="text-2xl font-bold text-white tracking-tight">Dépôt d'argent</h2>
+        <h2 class="text-2xl font-bold font-extrabold bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg text-center">Dépôt d'argent</h2>
       </div>
       <form @submit.prevent="submit" autocomplete="off" class="space-y-5">
         <div>

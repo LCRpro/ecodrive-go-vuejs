@@ -2,6 +2,19 @@
   <div
     class="min-h-screen flex flex-col items-center bg-gradient-to-br from-gray-900 via-gray-950 to-violet-900 px-4 py-10">
     <div class="w-full max-w-7xl">
+              <div class="flex flex-col items-center mb-12 mt-6">
+        <span class="mb-3 px-4 py-1 rounded-full bg-gradient-to-r from-violet-700 to-emerald-500 text-white font-bold text-xs shadow uppercase tracking-widest">
+          Support &amp; assistance
+        </span>
+        <h2
+          class="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg text-center"
+        >
+          Centre de support EcoDrive
+        </h2>
+        <div class="text-gray-400 text-sm mt-2 font-medium">
+          Créez vos tickets, suivez vos demandes et échangez avec notre équipe.
+        </div>
+      </div>
       <h2 class="text-3xl font-bold mb-6 text-white border-b border-violet-700 pb-3">Support — Créer une demande</h2>
       
       <form @submit.prevent="submitTicket" class="bg-gray-800 p-6 rounded-lg mb-10 border border-violet-700 shadow-inner">

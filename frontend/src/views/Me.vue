@@ -2,6 +2,17 @@
   <div
     class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-950 to-violet-900 px-2 py-10">
     <div class="w-full max-w-6xl">
+        <div class="flex flex-col items-center mb-12 mt-6">
+        <span class="mb-3 px-4 py-1 rounded-full bg-gradient-to-r from-violet-700 to-emerald-500 text-white font-bold text-xs shadow uppercase tracking-widest">
+          Mon profil
+        </span>
+        <h2
+          class="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg text-center"
+        >
+          Mon espace personnel
+        </h2>
+        <div class="text-gray-400 text-sm mt-2 font-medium">Gérez votre profil, votre activité, vos trajets et vos demandes driver.</div>
+      </div>
       <UserStatsCards :balance="user?.balance?.toFixed(2) ?? '0.00'" :co2-passenger="co2Passenger"
         :co2-driver="co2Driver" :km-passenger="kmPassenger" :km-driver="kmDriver" class="mb-8" />
 
