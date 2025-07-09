@@ -47,9 +47,9 @@
             <td class="text-gray-200 border border-gray-700 text-center px-3 py-2 md:px-4 md:py-3">{{ c.end_lat }}, {{
               c.end_lng }}</td>
             <td class="text-gray-200 border border-gray-700 text-center px-3 py-2 md:px-4 md:py-3">{{
-              getUserByGoogleId(c.passenger_id)?.email || c.passenger_id }}</td>
+              getUserByGoogleId(c.passenger_id)?.name || c.passenger_id }}</td>
             <td class="text-gray-200 border border-gray-700 text-center px-3 py-2 md:px-4 md:py-3">{{
-              getUserByGoogleId(c.driver_id)?.email || c.driver_id || '-' }}</td>
+              getUserByGoogleId(c.driver_id)?.name || c.driver_id || '-' }}</td>
             <td class="text-gray-200 border border-gray-700 text-center px-3 py-2 md:px-4 md:py-3">{{
               c.distance_km?.toFixed(2) ?? '-' }} km</td>
             <td class="text-gray-200 border border-gray-700 text-center font-mono px-3 py-2 md:px-4 md:py-3">{{
