@@ -10,17 +10,23 @@ import (
 )
 
 var (
-jwtSecret = []byte(os.Getenv("JWT_SECRET"))
+    jwtSecret []byte // juste déclaré ici
     googleOauthConfig *oauth2.Config
 )
 
 func main() {
-    _ = godotenv.Load()
+    _ = godotenv.Load() // charge bien .env
+    jwtSecret = []byte(os.Getenv("JWT_SECRET")) // ICI on lit la vraie valeur de .env
+
     googleOauthConfig = &oauth2.Config{
         RedirectURL:  "http://localhost:8000/auth/callback",
         ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
         ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
-        Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile", "openid"},
+        Scopes:       []string{
+            "https://www.googleapis.com/auth/userinfo.email",
+            "https://www.googleapis.com/auth/userinfo.profile",
+            "openid",
+        },
         Endpoint:     google.Endpoint,
     }
 

@@ -25,6 +25,7 @@ type User struct {
     Roles     string `json:"roles"`
 }
 
+
 func HandleGoogleAuth(c *gin.Context) {
     url := googleOauthConfig.AuthCodeURL("state", oauth2.AccessTypeOffline)
     c.Redirect(http.StatusTemporaryRedirect, url)

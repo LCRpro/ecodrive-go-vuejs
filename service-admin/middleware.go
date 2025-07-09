@@ -8,7 +8,9 @@ import (
     "strings"
 )
 
-var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
+func getJWTSecret() []byte {
+    return []byte(os.Getenv("JWT_SECRET"))
+}
 
 func AuthRequired() gin.HandlerFunc {
     return func(c *gin.Context) {
@@ -19,7 +21,7 @@ func AuthRequired() gin.HandlerFunc {
         }
         tokenString := strings.TrimPrefix(auth, "Bearer ")
         token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-            return jwtSecret, nil
+            return getJWTSecret(), nil
         })
         if err != nil || !token.Valid {
             c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
@@ -30,6 +32,8 @@ func AuthRequired() gin.HandlerFunc {
             c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid claims"})
             return
         }
+        println("JWT reçu :", tokenString)
+println("Clé utilisée pour valider :", os.Getenv("JWT_SECRET"))
         c.Set("claims", claims)
         c.Next()
     }

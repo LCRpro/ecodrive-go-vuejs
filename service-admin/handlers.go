@@ -58,7 +58,7 @@ func AcceptDriver(c *gin.Context) {
     body, _ := json.Marshal(patch)
     req, _ := http.NewRequest("PATCH", "http://localhost:8002/users/"+c.Param("id"), bytes.NewReader(body))
     req.Header.Set("Content-Type", "application/json")
-    client := &http.Client{}
+    client := http.DefaultClient // Correction ici
     resp, err := client.Do(req)
     if err != nil {
         c.JSON(500, gin.H{"error": "PATCH failed"})
@@ -90,7 +90,6 @@ func CreateDriverRequest(c *gin.Context) {
     c.JSON(201, req)
 }
 
-
 func ListDriverRequests(c *gin.Context) {
     resp, err := http.Get("http://localhost:8002/driver-requests")
     if err != nil {
@@ -113,7 +112,7 @@ func HandleDriverRequest(c *gin.Context) {
     body, _ := json.Marshal(input)
     req, _ := http.NewRequest("PATCH", "http://localhost:8002/driver-requests/"+id, bytes.NewReader(body))
     req.Header.Set("Content-Type", "application/json")
-    client := &http.Client{}
+    client := http.DefaultClient // Correction ici
     resp, err := client.Do(req)
     if err != nil {
         c.JSON(500, gin.H{"error": "service-user KO"})
