@@ -2,7 +2,8 @@ package main
 
 import (
     "os"
-
+    "net/url"
+    "strings"
     "github.com/gin-contrib/cors"
     "github.com/gin-gonic/gin"
     "github.com/joho/godotenv"
@@ -15,9 +16,26 @@ var db *gorm.DB
 func main() {
     godotenv.Load()
 
-    dsn := os.Getenv("DATABASE_DSN") 
+    dsn := os.Getenv("DATABASE_URL") 
     if dsn == "" {
         panic("DATABASE_DSN manquante")
+    }
+
+  if strings.HasPrefix(dsn, "mysql://") {
+        parsedUrl, err := url.Parse(dsn)
+        if err != nil {
+            panic("Erreur parsing DATABASE_URL: " + err.Error())
+        }
+        user := parsedUrl.User.Username()
+        pass, _ := parsedUrl.User.Password()
+        host := parsedUrl.Host
+        dbname := strings.TrimPrefix(parsedUrl.Path, "/")
+        params := parsedUrl.RawQuery
+        // Format final pour GORM
+        dsn = user + ":" + pass + "@tcp(" + host + ")/" + dbname
+        if params != "" {
+            dsn += "?" + params
+        }
     }
 
     var err error
