@@ -11,6 +11,9 @@
             <th
               class="bg-gray-800 text-violet-200 font-semibold text-center border border-gray-700 px-3 py-2 md:px-4 md:py-3">
               Email</th>
+                <th
+              class="bg-gray-800 text-violet-200 font-semibold text-center border border-gray-700 px-3 py-2 md:px-4 md:py-3">
+              Numero de téléphone</th>
             <th
               class="bg-gray-800 text-violet-200 font-semibold text-center border border-gray-700 px-3 py-2 md:px-4 md:py-3">
               Nom</th>
@@ -33,6 +36,7 @@
           <tr v-for="u in users" :key="u.id" class="even:bg-gray-900 hover:bg-gray-800/80">
             <td class="text-gray-200 border border-gray-700 text-center px-3 py-2 md:px-4 md:py-3">{{ u.id }}</td>
             <td class="text-gray-200 border border-gray-700 text-center px-3 py-2 md:px-4 md:py-3">{{ u.email }}</td>
+            <td class="text-gray-200 border border-gray-700 text-center px-3 py-2 md:px-4 md:py-3">{{ u.phone }}</td>
             <td class="text-gray-200 border border-gray-700 text-center px-3 py-2 md:px-4 md:py-3">{{ u.name }}</td>
             <td class="text-gray-200 border border-gray-700 text-center px-3 py-2 md:px-4 md:py-3">
               <span v-for="role in JSON.parse(u.roles || '[]')" :key="role"
@@ -62,6 +66,10 @@
       <div class="mb-2">
         <label>Email :</label>
         <input v-model="editForm.email" class="input" />
+      </div>
+       <div class="mb-2">
+        <label>Numero de téléphone :</label>
+        <input v-model="editForm.phone" class="input" />
       </div>
       <div class="mb-2">
         <label>Voiture :</label>
@@ -101,7 +109,8 @@ const editForm = reactive({
   car: '',
   plate: '',
   balance: 0,
-  roles: ''
+  roles: '',
+  phone:'',
 })
 const error = ref('')
 
@@ -110,6 +119,7 @@ function openEdit(user) {
   editForm.name = user.name || ''
   editForm.email = user.email || ''
   editForm.car = user.car || ''
+  editForm.phone = user.phone || ''
   editForm.plate = user.plate || ''
   editForm.balance = user.balance ?? 0
   editForm.roles = user.roles || '["ROLE_PASSAGER"]'
@@ -136,7 +146,8 @@ async function saveEdit() {
       car: editForm.car,
       plate: editForm.plate,
       balance: editForm.balance,
-      roles: editForm.roles
+      roles: editForm.roles,
+      phone: editForm.phone
     })
   })
   if (res.ok) {

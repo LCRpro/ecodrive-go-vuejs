@@ -17,6 +17,7 @@ type User struct {
     Gender    string `json:"gender"`
     Car       string `json:"car"`
     Plate     string `json:"plate"`
+    Phone     string `json:"phone"` 
 }
 
 func ListUsers(c *gin.Context) {
