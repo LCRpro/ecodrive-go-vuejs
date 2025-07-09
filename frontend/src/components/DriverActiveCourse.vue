@@ -4,7 +4,6 @@
       <template v-for="c in displayedCourses" :key="c.id">
         <h2 class="text-white text-2xl font-bold mb-6">Course</h2>
         <div class="bg-gradient-to-r from-gray-800/90 via-gray-900/95 to-violet-950/70 rounded-xl px-6 py-5 mb-3 shadow-inner border border-gray-800 space-y-4">
-          <!-- Infos Départ/Arrivée/Prix etc ... -->
           <slot :course="c" />
         </div>
         <div class="mt-4 flex gap-2">
