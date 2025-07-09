@@ -43,6 +43,7 @@ func main() {
     if err != nil {
         panic("Erreur connexion BDD: " + err.Error())
     }
+    db.AutoMigrate(&SupportTicket{})
 
     r := gin.Default()
     r.Use(cors.New(cors.Config{
