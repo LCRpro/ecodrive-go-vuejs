@@ -82,7 +82,7 @@
         </div>
       </template>
       <template v-else>
-        <h2 class="text-white text-2xl font-bold mb-6">Commander une course</h2>
+        <h2 class="text-2xl font-extrabold bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg text-center font-bold mb-6">Commander une course</h2>
         <div class="mb-4">
           <label class="text-gray-300 mb-1 block">Destination :</label>
           <input

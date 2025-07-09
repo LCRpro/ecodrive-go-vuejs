@@ -14,13 +14,13 @@
       <div class="hidden md:flex items-center">
         <router-link to="/" class="nav-link" exact-active-class="text-violet-400">Accueil</router-link>
         <span class="separator" />
-        <router-link v-if="isLoggedIn" to="/me" class="nav-link">Mon profil</router-link>
+        <router-link v-if="isLoggedIn" to="/me" class="nav-link">Profil</router-link>
         <span v-if="isLoggedIn" class="separator" />
         <router-link v-if="isAdmin" to="/admin" class="nav-link">Admin</router-link>
         <span v-if="isAdmin" class="separator" />
         <router-link v-if="isLoggedIn" to="/course" class="nav-link">Commander une course</router-link>
         <span v-if="isLoggedIn" class="separator" />
-        <router-link v-if="isLoggedIn && isDriver" to="/driver" class="nav-link">Courses à prendre</router-link>
+        <router-link v-if="isLoggedIn && isDriver" to="/driver" class="nav-link">Driver</router-link>
         <span v-if="isLoggedIn && isDriver" class="separator" />
         <router-link v-if="isLoggedIn" to="/support" class="nav-link">Support</router-link>
         <span v-if="isLoggedIn && isDriver" class="separator" />
