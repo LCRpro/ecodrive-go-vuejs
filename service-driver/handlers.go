@@ -28,30 +28,32 @@ func CreateCourse(c *gin.Context) {
 		return
 	}
 
-co2Saved := input.DistanceKm * 100 
+	co2Saved := input.DistanceKm * 100 
+	amount := 4.0 + 0.8*input.DistanceKm
 
-amount := 4.0 + 0.8*input.DistanceKm
+	if !HasEnoughBalance(input.PassengerID, amount) {
+		c.JSON(400, gin.H{"error": "Solde insuffisant pour commander cette course"})
+		return
+	}
 
-if !HasEnoughBalance(input.PassengerID, amount) {
-    c.JSON(400, gin.H{"error": "Solde insuffisant pour commander cette course"})
-    return
-}
+	course := Course{
+		PassengerID:    input.PassengerID,
+		PassengerName:  input.PassengerName,
+		PassengerEmail: input.PassengerEmail,
+		StartLat:       input.StartLat,
+		StartLng:       input.StartLng,
+		EndLat:         input.EndLat,
+		EndLng:         input.EndLng,
+		DistanceKm:     input.DistanceKm,
+		CO2:            co2Saved,
+		Amount:         amount,
+		Status:         "requested",
+	}
 
-course := Course{
-    PassengerID:    input.PassengerID,
-    PassengerName:  input.PassengerName,
-    PassengerEmail: input.PassengerEmail,
-    StartLat:       input.StartLat,
-    StartLng:       input.StartLng,
-    EndLat:         input.EndLat,
-    EndLng:         input.EndLng,
-    DistanceKm:     input.DistanceKm,
-    CO2:            co2Saved,
-    Amount:         amount,
-    Status:         "requested",
-}
-
-	saveCourse(&course)
+	if err := db.Create(&course).Error; err != nil {
+		c.JSON(500, gin.H{"error": "Erreur lors de la création"})
+		return
+	}
 	c.JSON(201, course)
 }
 
@@ -64,7 +66,6 @@ func ListCourses(c *gin.Context) {
 	var courses []Course
 
 	if driverView == "1" && driverID != "" {
-	
 		db.Where("driver_id = ? AND (status = ? OR status = ?)", driverID, "accepted", "in_progress").
 			Order("created_at desc").Find(&courses)
 		if len(courses) > 0 {
@@ -92,12 +93,11 @@ func GetCourse(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "ID invalide"})
 		return
 	}
-	found, ok := findCourseByID(idU64)
-	if !ok {
+	var course Course
+	if err := db.Where("id = ?", idU64).First(&course).Error; err != nil {
 		c.JSON(404, gin.H{"error": "not found"})
 		return
 	}
-	course := *found
 	c.JSON(200, course)
 }
 
@@ -114,12 +114,11 @@ func AcceptCourse(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "ID invalide"})
 		return
 	}
-	found, ok := findCourseByID(idU64)
-	if !ok {
+	var course Course
+	if err := db.Where("id = ?", idU64).First(&course).Error; err != nil {
 		c.JSON(404, gin.H{"error": "not found"})
 		return
 	}
-	course := *found
 	if course.Status != "requested" {
 		c.JSON(400, gin.H{"error": "Course déjà acceptée"})
 		return
@@ -128,7 +127,10 @@ func AcceptCourse(c *gin.Context) {
 	course.Status = "accepted"
 	course.DriverID = input.DriverID
 	course.AcceptedAt = &now
-	saveCourse(&course)
+	if err := db.Save(&course).Error; err != nil {
+		c.JSON(500, gin.H{"error": "save failed"})
+		return
+	}
 	c.JSON(200, course)
 }
 
@@ -138,12 +140,11 @@ func CancelCourse(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "ID invalide"})
 		return
 	}
-	found, ok := findCourseByID(idU64)
-	if !ok {
+	var course Course
+	if err := db.Where("id = ?", idU64).First(&course).Error; err != nil {
 		c.JSON(404, gin.H{"error": "not found"})
 		return
 	}
-	course := *found
 	if course.Status == "cancelled" {
 		c.JSON(400, gin.H{"error": "Déjà annulée"})
 		return
@@ -153,34 +154,36 @@ func CancelCourse(c *gin.Context) {
 		return
 	}
 	course.Status = "cancelled"
-	saveCourse(&course)
+	if err := db.Save(&course).Error; err != nil {
+		c.JSON(500, gin.H{"error": "save failed"})
+		return
+	}
 	c.JSON(200, course)
 }
 
 var HasEnoughBalance = func(googleID string, amount float64) bool {
-    resp, err := http.Get("http://localhost:8002/users/" + googleID)
-    if err != nil {
-        return false
-    }
-    defer resp.Body.Close()
-    var user struct{ Balance float64 }
-    json.NewDecoder(resp.Body).Decode(&user)
-    return user.Balance >= amount
+	resp, err := http.Get("http://localhost:8002/users/" + googleID)
+	if err != nil {
+		return false
+	}
+	defer resp.Body.Close()
+	var user struct{ Balance float64 }
+	json.NewDecoder(resp.Body).Decode(&user)
+	return user.Balance >= amount
 }
 
-
 func UpdateUserBalance(googleID string, delta float64) {
-    resp, err := http.Get("http://localhost:8002/users/" + googleID)
-    if err != nil { return }
-    defer resp.Body.Close()
-    var user struct{ Balance float64 }
-    json.NewDecoder(resp.Body).Decode(&user)
-    newBalance := user.Balance + delta
-    body, _ := json.Marshal(map[string]float64{"balance": newBalance})
-    req, _ := http.NewRequest("PATCH", "http://localhost:8002/users/"+googleID, bytes.NewBuffer(body))
-    req.Header.Set("Content-Type", "application/json")
-    client := &http.Client{}
-    client.Do(req)
+	resp, err := http.Get("http://localhost:8002/users/" + googleID)
+	if err != nil { return }
+	defer resp.Body.Close()
+	var user struct{ Balance float64 }
+	json.NewDecoder(resp.Body).Decode(&user)
+	newBalance := user.Balance + delta
+	body, _ := json.Marshal(map[string]float64{"balance": newBalance})
+	req, _ := http.NewRequest("PATCH", "http://localhost:8002/users/"+googleID, bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	client.Do(req)
 }
 
 func CompleteCourse(c *gin.Context) {
@@ -189,27 +192,29 @@ func CompleteCourse(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "ID invalide"})
 		return
 	}
-	found, ok := findCourseByID(idU64)
-	if !ok {
+	var course Course
+	if err := db.Where("id = ?", idU64).First(&course).Error; err != nil {
 		c.JSON(404, gin.H{"error": "not found"})
 		return
 	}
-	course := *found
 	if course.Status != "in_progress" {
 		c.JSON(400, gin.H{"error": "Course pas en cours"})
 		return
 	}
 	course.Status = "completed"
-	saveCourse(&course)
+	if err := db.Save(&course).Error; err != nil {
+		c.JSON(500, gin.H{"error": "save failed"})
+		return
+	}
 	c.JSON(200, course)
 }
 
 func creditAppAccount(amount float64) {
-    body := []byte(fmt.Sprintf(`{"amount":%f}`, amount))
-    req, _ := http.NewRequest("PATCH", "http://localhost:8002/app-account/credit", bytes.NewBuffer(body))
-    req.Header.Set("Content-Type", "application/json")
-    client := &http.Client{}
-    client.Do(req)
+	body := []byte(fmt.Sprintf(`{"amount":%f}`, amount))
+	req, _ := http.NewRequest("PATCH", "http://localhost:8002/app-account/credit", bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	client.Do(req)
 }
 
 func StartCourse(c *gin.Context) {
@@ -218,12 +223,11 @@ func StartCourse(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "ID invalide"})
 		return
 	}
-	found, ok := findCourseByID(idU64)
-	if !ok {
+	var course Course
+	if err := db.Where("id = ?", idU64).First(&course).Error; err != nil {
 		c.JSON(404, gin.H{"error": "not found"})
 		return
 	}
-	course := *found
 	if course.Status != "accepted" {
 		c.JSON(400, gin.H{"error": "Course non acceptée ou déjà commencée"})
 		return
@@ -240,7 +244,10 @@ func StartCourse(c *gin.Context) {
 	go creditAppAccount(appShare)
 
 	course.Status = "in_progress"
-	saveCourse(&course)
+	if err := db.Save(&course).Error; err != nil {
+		c.JSON(500, gin.H{"error": "save failed"})
+		return
+	}
 	c.JSON(200, course)
 }
 
@@ -255,12 +262,11 @@ func PatchCourse(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "bad input"})
 		return
 	}
-	found, ok := findCourseByID(idU64)
-	if !ok {
+	var course Course
+	if err := db.Where("id = ?", idU64).First(&course).Error; err != nil {
 		c.JSON(404, gin.H{"error": "not found"})
 		return
 	}
-	course := *found
 	for k, v := range update {
 		switch k {
 		case "passenger_id":
@@ -289,6 +295,9 @@ func PatchCourse(c *gin.Context) {
 			course.DriverID = v.(string)
 		}
 	}
-	saveCourse(&course)
+	if err := db.Save(&course).Error; err != nil {
+		c.JSON(500, gin.H{"error": "save failed"})
+		return
+	}
 	c.JSON(200, course)
 }
