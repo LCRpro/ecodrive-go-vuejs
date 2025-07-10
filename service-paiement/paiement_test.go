@@ -4,32 +4,18 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 	"net/http/httptest"
 	"testing"
 	"time"
 )
 
-
-
-func setupTestDB() *gorm.DB {
-	db, _ := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	db.AutoMigrate(&Transaction{})
-	return db
-}
-
-var originalHasEnoughBalance func(string, float64) bool
-
-func TestMain(m *testing.M) {
-	originalHasEnoughBalance = HasEnoughBalance
-	HasEnoughBalance = func(gid string, amt float64) bool { return true }
-	m.Run()
-	HasEnoughBalance = originalHasEnoughBalance
+func resetTestTxData() {
+	transactions = nil
+	nextID = 1
 }
 
 func TestDepositHandler(t *testing.T) {
-	db = setupTestDB()
+	resetTestTxData()
 	gin.SetMode(gin.TestMode)
 	r := gin.Default()
 	r.POST("/deposit", Deposit)
@@ -58,15 +44,31 @@ func TestDepositHandler(t *testing.T) {
 	}
 }
 
-func TestDepositHandler_BadInput(t *testing.T) {
-	db = setupTestDB()
+func TestDepositHandler_BadJSON(t *testing.T) {
+	resetTestTxData()
+	gin.SetMode(gin.TestMode)
+	r := gin.Default()
+	r.POST("/deposit", Deposit)
+
+	body := []byte(`{invalid}`)
+	req := httptest.NewRequest("POST", "/deposit", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	if w.Code != 400 {
+		t.Fatalf("Expected 400 for invalid JSON, got %d", w.Code)
+	}
+}
+
+func TestDepositHandler_BadAmount(t *testing.T) {
+	resetTestTxData()
 	gin.SetMode(gin.TestMode)
 	r := gin.Default()
 	r.POST("/deposit", Deposit)
 
 	payload := map[string]interface{}{
-		"google_id": "",
-		"amount":    5.0, // trop bas
+		"google_id": "user123",
+		"amount":    5.0,
 	}
 	body, _ := json.Marshal(payload)
 	req := httptest.NewRequest("POST", "/deposit", bytes.NewReader(body))
@@ -74,12 +76,31 @@ func TestDepositHandler_BadInput(t *testing.T) {
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	if w.Code != 400 {
-		t.Fatalf("Expected 400 for bad input, got %d", w.Code)
+		t.Fatalf("Expected 400 for amount too low, got %d", w.Code)
+	}
+}
+
+func TestDepositHandler_NoUser(t *testing.T) {
+	resetTestTxData()
+	gin.SetMode(gin.TestMode)
+	r := gin.Default()
+	r.POST("/deposit", Deposit)
+
+	payload := map[string]interface{}{
+		"amount": 15.0,
+	}
+	body, _ := json.Marshal(payload)
+	req := httptest.NewRequest("POST", "/deposit", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	if w.Code != 400 {
+		t.Fatalf("Expected 400 for missing user, got %d", w.Code)
 	}
 }
 
 func TestWithdrawHandler(t *testing.T) {
-	db = setupTestDB()
+	resetTestTxData()
 	gin.SetMode(gin.TestMode)
 	HasEnoughBalance = func(gid string, amt float64) bool { return true }
 
@@ -111,8 +132,23 @@ func TestWithdrawHandler(t *testing.T) {
 	}
 }
 
+func TestWithdrawHandler_BadJSON(t *testing.T) {
+	resetTestTxData()
+	gin.SetMode(gin.TestMode)
+	r := gin.Default()
+	r.POST("/withdraw", Withdraw)
+	body := []byte(`{invalid}`)
+	req := httptest.NewRequest("POST", "/withdraw", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	if w.Code != 400 {
+		t.Fatalf("Expected 400 for invalid JSON, got %d", w.Code)
+	}
+}
+
 func TestWithdrawHandler_BadIban(t *testing.T) {
-	db = setupTestDB()
+	resetTestTxData()
 	gin.SetMode(gin.TestMode)
 	HasEnoughBalance = func(gid string, amt float64) bool { return true }
 	r := gin.Default()
@@ -120,7 +156,7 @@ func TestWithdrawHandler_BadIban(t *testing.T) {
 	payload := map[string]interface{}{
 		"google_id": "user123",
 		"amount":    20.0,
-		"iban":      "1234", 
+		"iban":      "1234",
 	}
 	body, _ := json.Marshal(payload)
 	req := httptest.NewRequest("POST", "/withdraw", bytes.NewReader(body))
@@ -132,10 +168,31 @@ func TestWithdrawHandler_BadIban(t *testing.T) {
 	}
 }
 
+func TestWithdrawHandler_InsufficientBalance(t *testing.T) {
+	resetTestTxData()
+	gin.SetMode(gin.TestMode)
+	HasEnoughBalance = func(gid string, amt float64) bool { return false }
+	r := gin.Default()
+	r.POST("/withdraw", Withdraw)
+	payload := map[string]interface{}{
+		"google_id": "user123",
+		"amount":    20.0,
+		"iban":      "FR7630006000011234567890189",
+	}
+	body, _ := json.Marshal(payload)
+	req := httptest.NewRequest("POST", "/withdraw", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	if w.Code != 400 {
+		t.Fatalf("Expected 400 for insufficient balance, got %d", w.Code)
+	}
+}
+
 func TestListTransactions(t *testing.T) {
-	db = setupTestDB()
-	db.Create(&Transaction{GoogleID: "u1", Type: "deposit", Amount: 30, CreatedAt: time.Now()})
-	db.Create(&Transaction{GoogleID: "u1", Type: "withdrawal", Amount: 10, CreatedAt: time.Now()})
+	resetTestTxData()
+	saveTx(&Transaction{GoogleID: "u1", Type: "deposit", Amount: 30, CreatedAt: time.Now()})
+	saveTx(&Transaction{GoogleID: "u1", Type: "withdrawal", Amount: 10, CreatedAt: time.Now()})
 	gin.SetMode(gin.TestMode)
 	r := gin.Default()
 	r.GET("/transactions/:google_id", ListTransactions)
@@ -155,9 +212,9 @@ func TestListTransactions(t *testing.T) {
 }
 
 func TestListAllTransactions(t *testing.T) {
-	db = setupTestDB()
-	db.Create(&Transaction{GoogleID: "a", Type: "deposit", Amount: 80, CreatedAt: time.Now()})
-	db.Create(&Transaction{GoogleID: "b", Type: "withdrawal", Amount: 21, CreatedAt: time.Now()})
+	resetTestTxData()
+	saveTx(&Transaction{GoogleID: "a", Type: "deposit", Amount: 80, CreatedAt: time.Now()})
+	saveTx(&Transaction{GoogleID: "b", Type: "withdrawal", Amount: 21, CreatedAt: time.Now()})
 	gin.SetMode(gin.TestMode)
 	r := gin.Default()
 	r.GET("/transactions", ListAllTransactions)

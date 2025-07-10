@@ -6,7 +6,43 @@ import (
     "strings"
     "encoding/json"
     "net/http"
+    "sync"
 )
+
+var transactions []Transaction
+var nextID uint
+var txMu sync.Mutex
+
+func saveTx(tx *Transaction) {
+    txMu.Lock()
+    defer txMu.Unlock()
+    if tx.ID == 0 {
+        tx.ID = nextID
+        nextID++
+    }
+    transactions = append(transactions, *tx)
+}
+
+func findTxsByGoogleID(gid string) []Transaction {
+    txMu.Lock()
+    defer txMu.Unlock()
+    var txs []Transaction
+    for _, tx := range transactions {
+        if tx.GoogleID == gid {
+            txs = append(txs, tx)
+        }
+    }
+    return txs
+}
+
+func allTxs() []Transaction {
+    txMu.Lock()
+    defer txMu.Unlock()
+    out := make([]Transaction, len(transactions))
+    copy(out, transactions)
+    return out
+}
+
 var HasEnoughBalance = hasEnoughBalanceReal
 
 func Deposit(c *gin.Context) {
@@ -35,7 +71,7 @@ func Deposit(c *gin.Context) {
         Amount:   input.Amount,
         CreatedAt: time.Now(),
     }
-    db.Create(&tx)
+    saveTx(&tx)
 
     go UpdateUserBalance(input.GoogleID, input.Amount)
 
@@ -72,22 +108,19 @@ func Withdraw(c *gin.Context) {
         IBANMask: ibanMask,
         CreatedAt: time.Now(),
     }
-    db.Create(&tx)
+    saveTx(&tx)
     go UpdateUserBalance(input.GoogleID, -input.Amount)
     c.JSON(201, tx)
 }
 
 func ListTransactions(c *gin.Context) {
     gid := c.Param("google_id")
-    var txs []Transaction
-    db.Where("google_id = ?", gid).Order("created_at desc").Find(&txs)
+    txs := findTxsByGoogleID(gid)
     c.JSON(200, txs)
 }
 
 func ListAllTransactions(c *gin.Context) {
-    var txs []Transaction
-    db.Order("created_at desc").Find(&txs)
-    c.JSON(200, txs)
+    c.JSON(200, allTxs())
 }
 
 func hasEnoughBalanceReal(googleID string, amount float64) bool {
