@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [service-driver, service-user, service-support, service-paiement]
+        service: [service-driver, service-user, service-support, service-paiement, service-admin, service-auth, service-paiement ]
     defaults:
       run:
         working-directory: ${{ matrix.service }}
