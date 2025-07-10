@@ -4,15 +4,55 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
+	"sync"
 	"testing"
-	"time"
 )
+
+var courses []Course
+var nextID int
+var mu sync.Mutex
+
+func resetTestData() {
+	mu.Lock()
+	defer mu.Unlock()
+	courses = nil
+	nextID = 1
+}
+
+func saveCourse(course *Course) {
+	mu.Lock()
+	defer mu.Unlock()
+if course.ID == 0 {
+	course.ID = uint64(nextID)
+	nextID++
+}
+	found := false
+	for i, c := range courses {
+		if c.ID == course.ID {
+			courses[i] = *course
+			found = true
+			break
+		}
+	}
+	if !found {
+		courses = append(courses, *course)
+	}
+}
+
+func findCourseByID(id uint64) (*Course, bool) {
+	mu.Lock()
+	defer mu.Unlock()
+	for i := range courses {
+		if courses[i].ID == id {
+			return &courses[i], true
+		}
+	}
+	return nil, false
+}
+
 
 func setupTestRouter() *gin.Engine {
 	gin.SetMode(gin.TestMode)
@@ -28,19 +68,10 @@ func setupTestRouter() *gin.Engine {
 	return r
 }
 
-func setupTestDB() {
-	var err error
-	db, err = gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect test db")
-	}
-	db.AutoMigrate(&Course{})
-}
-
 func mockBalanceOK(googleID string, amount float64) bool { return true }
 
 func TestDriverFlow(t *testing.T) {
-	setupTestDB()
+	resetTestData()
 	HasEnoughBalance = mockBalanceOK
 
 	r := setupTestRouter()
@@ -123,7 +154,7 @@ func TestDriverFlow(t *testing.T) {
 }
 
 func TestCourseCancel(t *testing.T) {
-	setupTestDB()
+	resetTestData()
 	HasEnoughBalance = mockBalanceOK
 	r := setupTestRouter()
 
@@ -168,7 +199,7 @@ func TestCourseCancel(t *testing.T) {
 }
 
 func TestInsufficientBalance(t *testing.T) {
-	setupTestDB()
+	resetTestData()
 	HasEnoughBalance = func(string, float64) bool { return false }
 	r := setupTestRouter()
 
