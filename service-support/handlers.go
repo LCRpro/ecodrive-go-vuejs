@@ -8,6 +8,39 @@ import (
     "github.com/gin-gonic/gin"
 )
 
+var tickets []SupportTicket
+var nextTicketID uint = 1
+
+func saveTicket(ticket *SupportTicket) {
+    if ticket.ID == 0 {
+        ticket.ID = nextTicketID
+        nextTicketID++
+    }
+    if ticket.CreatedAt.IsZero() {
+        ticket.CreatedAt = time.Now()
+    }
+    tickets = append(tickets, *ticket)
+}
+
+func findTicketsByGoogleID(googleID string) []SupportTicket {
+    var res []SupportTicket
+    for _, t := range tickets {
+        if t.GoogleID == googleID {
+            res = append(res, t)
+        }
+    }
+    return res
+}
+
+func findTicketByID(id uint) (*SupportTicket, bool) {
+    for i := range tickets {
+        if tickets[i].ID == id {
+            return &tickets[i], true
+        }
+    }
+    return nil, false
+}
+
 func CreateSupportTicket(c *gin.Context) {
     var ticket SupportTicket
     if err := c.ShouldBindJSON(&ticket); err != nil {
@@ -19,10 +52,7 @@ func CreateSupportTicket(c *gin.Context) {
         return
     }
     ticket.Status = "ouvert"
-    if err := db.Create(&ticket).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur création ticket"})
-        return
-    }
+    saveTicket(&ticket)
     c.JSON(http.StatusCreated, ticket)
 }
 
@@ -32,22 +62,11 @@ func ListUserTickets(c *gin.Context) {
         c.JSON(http.StatusBadRequest, gin.H{"error": "Google ID manquant"})
         return
     }
-    var tickets []SupportTicket
-    err := db.Where("google_id = ?", googleID).Order("created_at desc").Find(&tickets).Error
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur BDD"})
-        return
-    }
-    c.JSON(http.StatusOK, tickets)
+    ticketsFound := findTicketsByGoogleID(googleID)
+    c.JSON(http.StatusOK, ticketsFound)
 }
 
 func ListAllTickets(c *gin.Context) {
-    var tickets []SupportTicket
-    err := db.Order("created_at desc").Find(&tickets).Error
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur BDD"})
-        return
-    }
     c.JSON(http.StatusOK, tickets)
 }
 
@@ -68,8 +87,8 @@ func ReplySupportTicket(c *gin.Context) {
         return
     }
 
-    var ticket SupportTicket
-    if err := db.First(&ticket, id).Error; err != nil {
+    ticket, ok := findTicketByID(uint(id))
+    if !ok {
         c.JSON(http.StatusNotFound, gin.H{"error": "Ticket introuvable"})
         return
     }
@@ -78,10 +97,6 @@ func ReplySupportTicket(c *gin.Context) {
     ticket.Status = input.Status
     ticket.UpdatedAt = time.Now()
 
-    if err := db.Save(&ticket).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Impossible de mettre à jour"})
-        return
-    }
 
     c.JSON(http.StatusOK, ticket)
 }
