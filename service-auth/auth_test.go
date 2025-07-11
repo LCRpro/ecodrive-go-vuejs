@@ -74,6 +74,7 @@ func TestJWTGeneration(t *testing.T) {
 }
 
 func TestHandleGoogleAuth_Redirects(t *testing.T) {
+	frontendCallbackURL = "http://localhost:5173/callback" 
 	setupTestGoogleOauthConfig()
 	router := setupRouter()
 	w := httptest.NewRecorder()
