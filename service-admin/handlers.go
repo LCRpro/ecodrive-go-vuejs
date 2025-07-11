@@ -8,18 +8,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type User struct {
-	ID        uint   `json:"id"`
-	GoogleID  string `json:"google_id"`
-	Email     string `json:"email"`
-	Name      string `json:"name"`
-	Roles     string `json:"roles"`
-	Birthdate string `json:"birthdate"`
-	Gender    string `json:"gender"`
-	Car       string `json:"car"`
-	Plate     string `json:"plate"`
-	Phone     string `json:"phone"`
-}
+ type User struct {
+ 	ID        uint    `json:"id"`
+	GoogleID  string  `json:"google_id"`
+	Email     string  `json:"email"`
+	Name      string  `json:"name"`
+	Roles     string  `json:"roles"`
+	Birthdate string  `json:"birthdate"`
+	Gender    string  `json:"gender"`
+	Car       string  `json:"car"`
+	Plate     string  `json:"plate"`
+	Phone     string  `json:"phone"`
+	Balance   float64 `json:"balance"`
+ }
 
 func ListUsers(c *gin.Context) {
 	resp, err := http.Get("https://user-ecodrive.liamcariou.fr/users")
