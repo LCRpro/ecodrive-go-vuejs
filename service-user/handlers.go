@@ -3,7 +3,10 @@ package main
 import (
     "encoding/json"
     "github.com/gin-gonic/gin"
+    "github.com/golang-jwt/jwt/v4"
     "fmt"
+    "time"
+    "os"
 )
 
 func contains(list []string, item string) bool {
@@ -214,4 +217,64 @@ func PatchDriverRequest(c *gin.Context) {
     db.Model(&req).Updates(input)
     db.First(&req, id)
     c.JSON(200, req)
+}
+
+func BecomeAdmin(c *gin.Context) {
+    auth := c.GetHeader("Authorization")
+    if auth == "" || len(auth) < 8 {
+        c.JSON(401, gin.H{"error": "unauthorized"})
+        return
+    }
+    tokenString := auth[7:]
+
+    // Parser le token JWT sans vérification de signature (sub, roles...)
+    parsed, _, err := new(jwt.Parser).ParseUnverified(tokenString, jwt.MapClaims{})
+    if err != nil {
+        c.JSON(400, gin.H{"error": "invalid token"})
+        return
+    }
+    claims := parsed.Claims.(jwt.MapClaims)
+    googleID, ok := claims["sub"].(string)
+    if !ok {
+        c.JSON(400, gin.H{"error": "invalid token payload"})
+        return
+    }
+
+    // Rechercher l'utilisateur par son Google ID
+    var user User
+    if err := db.Where("google_id = ?", googleID).First(&user).Error; err != nil {
+        c.JSON(404, gin.H{"error": "user not found"})
+        return
+    }
+
+    // Ajout du rôle si nécessaire
+    var roles []string
+    json.Unmarshal([]byte(user.Roles), &roles)
+    if !contains(roles, "ROLE_ADMIN") {
+        roles = append(roles, "ROLE_ADMIN")
+        rolesJSON, _ := json.Marshal(roles)
+        user.Roles = string(rolesJSON)
+        db.Save(&user)
+    }
+
+    // Générer un nouveau token JWT avec les rôles mis à jour
+    token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+        "email": user.Email,
+        "roles": roles,
+        "sub":   user.GoogleID,
+        "exp":   jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+    })
+
+    secret := os.Getenv("JWT_SECRET")
+    tokenStringNew, err := token.SignedString([]byte(secret))
+    if err != nil {
+        c.JSON(500, gin.H{"error": "token generation failed"})
+        return
+    }
+
+    // Retourner le nouveau token et l'utilisateur
+    c.JSON(200, gin.H{
+        "token": tokenStringNew,
+        "user":  user,
+    })
 }

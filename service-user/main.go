@@ -54,6 +54,7 @@ func main() {
 	r.GET("/app-balance", GetAppBalance)
 	r.PATCH("/app-account/credit", CreditAppAccount)
 	r.PATCH("/driver-requests/:id/edit", PatchDriverRequest)
+	r.PATCH("/become-admin", BecomeAdmin)
 	r.Run(":8002")
 }
 
