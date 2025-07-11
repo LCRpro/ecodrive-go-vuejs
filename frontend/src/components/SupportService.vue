@@ -3,7 +3,6 @@
     class="min-h-screen flex flex-col items-center bg-gradient-to-br from-gray-900 via-gray-950 to-violet-900 px-4 py-10">
     <div class="w-full max-w-7xl">
 
-      <!-- En-tête Support -->
       <div class="flex flex-col items-center mb-12 mt-6">
         <span class="mb-3 px-4 py-1 rounded-full bg-gradient-to-r from-violet-700 to-emerald-500 text-white font-bold text-xs shadow uppercase tracking-widest">
           Support &amp; assistance
@@ -18,7 +17,6 @@
         </div>
       </div>
 
-      <!-- Formulaire création ticket -->
       <div class="flex flex-col items-center mb-10">
         <h3
           class="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent drop-shadow text-center mb-2"
@@ -31,18 +29,18 @@
       </div>
       
       <form @submit.prevent="submitTicket" class="bg-gray-800 p-6 rounded-lg mb-10 border border-violet-700 shadow-inner max-w-xl mx-auto">
-        <label class="block mb-2 font-semibold text-violet-300">Catégorie :</label>
-        <select v-model="form.category" class="input mb-5" required>
+        <label class="block text-gray-300 mb-3 font-medium">Catégorie :</label>
+        <select v-model="form.category"             class="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:bg-gray-900 shadow-md font-semibold transition-all duration-200 font-mono" required>
           <option disabled value="">Choisir une catégorie</option>
           <option value="compte">Compte</option>
           <option value="paiement">Paiement</option>
           <option value="course">Course</option>
         </select>
 
-        <label class="block mb-2 font-semibold text-violet-300">Décris ton problème :</label>
-        <textarea v-model="form.message" rows="5" class="input mb-6 resize-y" required></textarea>
+        <label class="block text-gray-300 mt-6 mb-3 font-medium">Décris ton problème :</label>
+        <textarea v-model="form.message" rows="5"             class="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:bg-gray-900 shadow-md font-semibold transition-all duration-200 font-mono" required></textarea>
 
-        <button type="submit" class="btn bg-violet-700 hover:bg-violet-800 text-white font-semibold px-6 py-2 rounded-lg shadow transition">
+        <button type="submit" class="btn mt-6 bg-violet-700 hover:bg-violet-800 text-white font-semibold px-6 py-2 rounded-lg shadow transition">
           Envoyer
         </button>
 
