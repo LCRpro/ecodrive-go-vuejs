@@ -1,13 +1,14 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 	"os"
 	"strings"
-	"github.com/joho/godotenv"
+
 	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 var db *gorm.DB
@@ -28,7 +29,7 @@ func main() {
 
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowOrigins:     []string{"https://ecodrive.liamcariou.fr"},
 		AllowMethods:     []string{"GET", "POST", "PATCH", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: true,
@@ -39,9 +40,9 @@ func main() {
 	r.PATCH("/courses/:id/accept", AcceptCourse)
 	r.GET("/courses/:id", GetCourse)
 	r.PATCH("/courses/:id/cancel", CancelCourse)
-r.PATCH("/courses/:id/start", StartCourse)
-r.PATCH("/courses/:id/complete", CompleteCourse)
-r.PATCH("/courses/:id", PatchCourse)
+	r.PATCH("/courses/:id/start", StartCourse)
+	r.PATCH("/courses/:id/complete", CompleteCourse)
+	r.PATCH("/courses/:id", PatchCourse)
 	r.Run(":8006")
 }
 

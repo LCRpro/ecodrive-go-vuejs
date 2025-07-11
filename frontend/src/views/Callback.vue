@@ -44,7 +44,7 @@ onMounted(async () => {
   localStorage.setItem('roles', JSON.stringify(payload.roles || []))
 
   try {
-    const res = await fetch('http://localhost:8002/users/' + payload.sub)
+    const res = await fetch('https://user-ecodrive.liamcariou.fr/users/' + payload.sub)
     if (res.ok) {
       const user = await res.json()
       localStorage.setItem('name', user.name || '')

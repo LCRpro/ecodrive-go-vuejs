@@ -1,13 +1,14 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"time"
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
-	"bytes"
-	"fmt"
+	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 func CreateCourse(c *gin.Context) {
@@ -28,7 +29,7 @@ func CreateCourse(c *gin.Context) {
 		return
 	}
 
-	co2Saved := input.DistanceKm * 100 
+	co2Saved := input.DistanceKm * 100
 	amount := 4.0 + 0.8*input.DistanceKm
 
 	if !HasEnoughBalance(input.PassengerID, amount) {
@@ -162,7 +163,7 @@ func CancelCourse(c *gin.Context) {
 }
 
 var HasEnoughBalance = func(googleID string, amount float64) bool {
-	resp, err := http.Get("http://localhost:8002/users/" + googleID)
+	resp, err := http.Get("https://user-ecodrive.liamcariou.fr/users/" + googleID)
 	if err != nil {
 		return false
 	}
@@ -173,14 +174,16 @@ var HasEnoughBalance = func(googleID string, amount float64) bool {
 }
 
 func UpdateUserBalance(googleID string, delta float64) {
-	resp, err := http.Get("http://localhost:8002/users/" + googleID)
-	if err != nil { return }
+	resp, err := http.Get("https://user-ecodrive.liamcariou.fr/users/" + googleID)
+	if err != nil {
+		return
+	}
 	defer resp.Body.Close()
 	var user struct{ Balance float64 }
 	json.NewDecoder(resp.Body).Decode(&user)
 	newBalance := user.Balance + delta
 	body, _ := json.Marshal(map[string]float64{"balance": newBalance})
-	req, _ := http.NewRequest("PATCH", "http://localhost:8002/users/"+googleID, bytes.NewBuffer(body))
+	req, _ := http.NewRequest("PATCH", "https://user-ecodrive.liamcariou.fr/users/"+googleID, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	client := &http.Client{}
 	client.Do(req)
@@ -211,7 +214,7 @@ func CompleteCourse(c *gin.Context) {
 
 func creditAppAccount(amount float64) {
 	body := []byte(fmt.Sprintf(`{"amount":%f}`, amount))
-	req, _ := http.NewRequest("PATCH", "http://localhost:8002/app-account/credit", bytes.NewBuffer(body))
+	req, _ := http.NewRequest("PATCH", "https://user-ecodrive.liamcariou.fr/app-account/credit", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	client := &http.Client{}
 	client.Do(req)
@@ -236,11 +239,11 @@ func StartCourse(c *gin.Context) {
 	go UpdateUserBalance(course.PassengerID, -course.Amount)
 
 	if course.DriverID != "" {
-		driverGain := course.Amount * 0.80  
+		driverGain := course.Amount * 0.80
 		go UpdateUserBalance(course.DriverID, driverGain)
 	}
 
-	appShare := course.Amount * 0.20 
+	appShare := course.Amount * 0.20
 	go creditAppAccount(appShare)
 
 	course.Status = "in_progress"

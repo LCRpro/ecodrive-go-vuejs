@@ -160,7 +160,7 @@ const payload = {
   plate: editingRequest.value.plate,
   status: editingRequest.value.status,
 }
-const res = await fetch(`http://localhost:8002/driver-requests/${editingRequest.value.ID}/edit`, {
+const res = await fetch(`https://user-ecodrive.liamcariou.fr/driver-requests/${editingRequest.value.ID}/edit`, {
   method: 'PATCH',
   headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
   body: JSON.stringify(payload),

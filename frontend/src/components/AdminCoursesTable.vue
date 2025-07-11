@@ -232,7 +232,7 @@ const payload = {
   co2: editingCourse.value.co2,
   status: editingCourse.value.status
 }
-const res = await fetch(`http://localhost:8006/courses/${editingCourse.value.id}`, {
+const res = await fetch(`https://driver-ecodrive.liamcariou.fr/courses/${editingCourse.value.id}`, {
   method: 'PATCH',
   headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
   body: JSON.stringify(payload)

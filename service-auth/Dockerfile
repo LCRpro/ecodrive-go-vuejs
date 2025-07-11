@@ -9,5 +9,5 @@ FROM alpine:latest
 WORKDIR /app
 COPY --from=builder /app/app .
 COPY .env .
-EXPOSE 8002
+EXPOSE 8000
 CMD ["./app"]

@@ -65,7 +65,7 @@ onMounted(async () => {
 
 async function fetchCourses() {
   const token = localStorage.getItem('token')
-  const res = await fetch('http://localhost:8006/courses', {
+  const res = await fetch('https://driver-ecodrive.liamcariou.fr/courses', {
     headers: { Authorization: 'Bearer ' + token }
   })
   courses.value = res.ok ? await res.json() : []
@@ -74,7 +74,7 @@ async function fetchCourses() {
 async function fetchUsers() {
   loading.value = true
   const token = localStorage.getItem('token')
-  const res = await fetch('http://localhost:8003/admin/users', {
+  const res = await fetch('https://admin-ecodrive.liamcariou.fr/admin/users', {
     headers: { Authorization: 'Bearer ' + token }
   })
   users.value = res.ok ? await res.json() : []
@@ -83,7 +83,7 @@ async function fetchUsers() {
 
 async function fetchDriverRequests() {
   const token = localStorage.getItem('token')
-  const res = await fetch('http://localhost:8003/admin/driver-requests', {
+  const res = await fetch('https://admin-ecodrive.liamcariou.fr/admin/driver-requests', {
     headers: { Authorization: 'Bearer ' + token }
   })
   driverRequests.value = res.ok ? await res.json() : []
@@ -95,7 +95,7 @@ function getUserByGoogleId(google_id) {
 
 async function handleRequest(id, action) {
   const token = localStorage.getItem('token')
-  await fetch('http://localhost:8003/admin/driver-requests/' + id, {
+  await fetch('https://admin-ecodrive.liamcariou.fr/admin/driver-requests/' + id, {
     method: 'PATCH',
     headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
     body: JSON.stringify({ action })
@@ -105,7 +105,7 @@ async function handleRequest(id, action) {
 }
 
 async function fetchAppBalance() {
-  const res = await fetch('http://localhost:8002/app-balance')
+  const res = await fetch('https://user-ecodrive.liamcariou.fr/app-balance')
   if (res.ok) {
     const data = await res.json()
     appBalance.value = data.balance
@@ -114,7 +114,7 @@ async function fetchAppBalance() {
 
 async function fetchTransactions() {
   const token = localStorage.getItem('token')
-  const res = await fetch('http://localhost:8004/transactions', {
+  const res = await fetch('https://paiement-ecodrive.liamcariou.fr/transactions', {
     headers: { Authorization: 'Bearer ' + token }
   })
   transactions.value = res.ok ? await res.json() : []

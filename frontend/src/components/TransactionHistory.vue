@@ -64,7 +64,7 @@ onMounted(async () => {
   const googleId = getGoogleIdFromToken(token)
   if (!token || !googleId) return
 
-  const res = await fetch(`http://localhost:8004/transactions/${googleId}`, {
+  const res = await fetch(`https://paiement-ecodrive.liamcariou.fr/transactions/${googleId}`, {
     headers: { Authorization: 'Bearer ' + token }
   })
   if (res.ok) transactions.value = await res.json()

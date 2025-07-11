@@ -207,7 +207,7 @@ async function fetchCourses() {
   const token = localStorage.getItem('token')
   const payload = JSON.parse(atob(token.split('.')[1]))
   driverId.value = payload.sub
-  const res = await fetch(`http://localhost:8006/courses?driverView=1&driver_id=${payload.sub}`, {
+  const res = await fetch(`https://driver-ecodrive.liamcariou.fr/courses?driverView=1&driver_id=${payload.sub}`, {
     headers: { Authorization: 'Bearer ' + token }
   })
   if (res.ok) {
@@ -221,7 +221,7 @@ async function fetchCourses() {
 function accept(id) {
   const token = localStorage.getItem('token')
   const payload = JSON.parse(atob(token.split('.')[1]))
-  fetch(`http://localhost:8006/courses/${id}/accept`, {
+  fetch(`https://driver-ecodrive.liamcariou.fr/courses/${id}/accept`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
     body: JSON.stringify({ driver_id: payload.sub })
@@ -236,7 +236,7 @@ function accept(id) {
 
 function startCourse(id) {
   const token = localStorage.getItem('token')
-  fetch(`http://localhost:8006/courses/${id}/start`, {
+  fetch(`https://driver-ecodrive.liamcariou.fr/courses/${id}/start`, {
     method: 'PATCH',
     headers: { Authorization: 'Bearer ' + token }
   }).then(async res => {
@@ -259,7 +259,7 @@ const isIdle = computed(() => {
 })
 function completeCourse(id) {
   const token = localStorage.getItem('token')
-  fetch(`http://localhost:8006/courses/${id}/complete`, {
+  fetch(`https://driver-ecodrive.liamcariou.fr/courses/${id}/complete`, {
     method: 'PATCH',
     headers: { Authorization: 'Bearer ' + token }
   }).then(async res => {

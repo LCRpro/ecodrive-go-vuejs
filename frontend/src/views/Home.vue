@@ -179,7 +179,7 @@ const totalCO2 = ref(null)
 const totalKm = ref(null)
 
 async function fetchStats() {
-  const res = await fetch('http://localhost:8006/courses')
+  const res = await fetch('https://driver-ecodrive.liamcariou.fr/courses')
   if (res.ok) {
     const data = await res.json()
     countCourses.value = data.length
