@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+
 var transactions []Transaction
 var nextID uint
 var txMu sync.Mutex
@@ -125,7 +126,7 @@ func ListAllTransactions(c *gin.Context) {
 }
 
 func hasEnoughBalanceReal(googleID string, amount float64) bool {
-	resp, err := http.Get("https://user-ecodrive.liamcariou.fr/users/" + googleID)
+	resp, err := http.Get(userServiceURL + "/users/" + googleID)
 	if err != nil {
 		return false
 	}
@@ -136,7 +137,7 @@ func hasEnoughBalanceReal(googleID string, amount float64) bool {
 }
 
 func UpdateUserBalance(googleID string, delta float64) {
-	resp, err := http.Get("https://user-ecodrive.liamcariou.fr/users/" + googleID)
+	resp, err := http.Get(userServiceURL + "/users/" + googleID)
 	if err != nil {
 		return
 	}
@@ -145,7 +146,7 @@ func UpdateUserBalance(googleID string, delta float64) {
 	json.NewDecoder(resp.Body).Decode(&user)
 	newBalance := user.Balance + delta
 	body, _ := json.Marshal(map[string]float64{"balance": newBalance})
-	req, _ := http.NewRequest("PATCH", "https://user-ecodrive.liamcariou.fr/users/"+googleID, strings.NewReader(string(body)))
+	req, _ := http.NewRequest("PATCH", userServiceURL+"/users/"+googleID, strings.NewReader(string(body)))
 	req.Header.Set("Content-Type", "application/json")
 	client := &http.Client{}
 	client.Do(req)

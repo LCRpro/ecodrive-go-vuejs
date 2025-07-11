@@ -138,6 +138,8 @@
 </template>
 </template>
 <script setup>
+const userServiceURL = import.meta.env.VITE_USER_SERVICE_URL
+
 defineProps(['driverRequests', 'getUserByGoogleId'])
 defineEmits(['handleRequest'])
 const isAdmin = JSON.parse(localStorage.getItem('roles') || '[]').includes('ROLE_ADMIN')
@@ -160,7 +162,7 @@ const payload = {
   plate: editingRequest.value.plate,
   status: editingRequest.value.status,
 }
-const res = await fetch(`https://user-ecodrive.liamcariou.fr/driver-requests/${editingRequest.value.ID}/edit`, {
+const res = await fetch(`${userServiceURL}/driver-requests/${editingRequest.value.ID}/edit`, {
   method: 'PATCH',
   headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
   body: JSON.stringify(payload),

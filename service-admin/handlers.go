@@ -23,7 +23,7 @@ import (
  }
 
 func ListUsers(c *gin.Context) {
-	resp, err := http.Get("https://user-ecodrive.liamcariou.fr/users")
+	resp, err := http.Get(userServiceURL + "/users")	
 	if err != nil {
 		c.JSON(500, gin.H{"error": "service-user injoignable"})
 		return
@@ -43,7 +43,7 @@ func AcceptDriver(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "bad input"})
 		return
 	}
-	userResp, _ := http.Get("https://user-ecodrive.liamcariou.fr/users/" + c.Param("id"))
+	userResp, _ := http.Get(userServiceURL + "/users/" + c.Param("id"))	
 	var user User
 	json.NewDecoder(userResp.Body).Decode(&user)
 	var roles []string
@@ -65,7 +65,7 @@ func AcceptDriver(c *gin.Context) {
 		"plate": input.Plate,
 	}
 	body, _ := json.Marshal(patch)
-	req, _ := http.NewRequest("PATCH", "https://user-ecodrive.liamcariou.fr/users/"+c.Param("id"), bytes.NewReader(body))
+	req, _ := http.NewRequest("PATCH", userServiceURL+"/users/"+c.Param("id"), bytes.NewReader(body))	
 	req.Header.Set("Content-Type", "application/json")
 	client := http.DefaultClient // Correction ici
 	resp, err := client.Do(req)
@@ -100,7 +100,7 @@ func CreateDriverRequest(c *gin.Context) {
 }
 
 func ListDriverRequests(c *gin.Context) {
-	resp, err := http.Get("https://user-ecodrive.liamcariou.fr/driver-requests")
+	resp, err := http.Get(userServiceURL + "/driver-requests")	
 	if err != nil {
 		c.JSON(500, gin.H{"error": "service-user injoignable"})
 		return
@@ -121,8 +121,8 @@ func HandleDriverRequest(c *gin.Context) {
 		return
 	}
 	body, _ := json.Marshal(input)
-	req, _ := http.NewRequest("PATCH", "https://user-ecodrive.liamcariou.fr/driver-requests/"+id, bytes.NewReader(body))
-	req.Header.Set("Content-Type", "application/json")
+	req, _ := http.NewRequest("PATCH", userServiceURL+"/driver-requests/"+id, bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
 	client := http.DefaultClient // Correction ici
 	resp, err := client.Do(req)
 	if err != nil {

@@ -36,8 +36,9 @@
 import { ref } from 'vue'
 
 const error = ref('')
+const authServiceURL = import.meta.env.VITE_AUTH_SERVICE_URL
 
 function googleLogin() {
-  window.location.href = 'https://auth-ecodrive.liamcariou.fr/auth/google'
+  window.location.href = authServiceURL + '/auth/google'
 }
 </script>

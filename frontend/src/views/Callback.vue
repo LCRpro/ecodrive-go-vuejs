@@ -9,7 +9,7 @@
 import { onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ref } from 'vue'
-
+const userServiceURL = import.meta.env.VITE_USER_SERVICE_URL
 const router = useRouter()
 const route = useRoute()
 const error = ref('')
@@ -44,7 +44,7 @@ onMounted(async () => {
   localStorage.setItem('roles', JSON.stringify(payload.roles || []))
 
   try {
-    const res = await fetch('https://user-ecodrive.liamcariou.fr/users/' + payload.sub)
+    const res = await fetch(userServiceURL + '/users/' + payload.sub)
     if (res.ok) {
       const user = await res.json()
       localStorage.setItem('name', user.name || '')

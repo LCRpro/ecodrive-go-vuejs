@@ -178,8 +178,10 @@ const countCourses = ref(null)
 const totalCO2 = ref(null)
 const totalKm = ref(null)
 
+const driverServiceURL = import.meta.env.VITE_DRIVER_SERVICE_URL
+
 async function fetchStats() {
-  const res = await fetch('https://driver-ecodrive.liamcariou.fr/courses')
+  const res = await fetch(driverServiceURL + '/courses')
   if (res.ok) {
     const rawData = await res.json()
     const data = rawData.filter(c => c.status === 'completed')

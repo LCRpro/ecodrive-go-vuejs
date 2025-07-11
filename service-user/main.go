@@ -38,8 +38,13 @@ func main() {
 
 	r := gin.Default()
 
+	frontendOrigin := os.Getenv("FRONTEND_ORIGIN")
+if frontendOrigin == "" {
+	frontendOrigin = "http://localhost:5173" 
+}
+
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://ecodrive.liamcariou.fr"},
+	AllowOrigins:     []string{frontendOrigin},
 		AllowMethods:     []string{"GET", "POST", "PATCH", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: true,

@@ -12,9 +12,15 @@ import (
 )
 
 var db *gorm.DB
+var userServiceURL string
 
 func main() {
 	godotenv.Load()
+	userServiceURL = os.Getenv("USER_SERVICE_URL")
+	if userServiceURL == "" {
+		userServiceURL = "http://localhost:8002"
+	}
+
 	dburl := os.Getenv("DATABASE_URL")
 	if dburl == "" {
 		panic("DATABASE_URL manquante !")
@@ -29,8 +35,15 @@ func main() {
 	db.AutoMigrate(&Transaction{})
 
 	r := gin.Default()
+
+
+	frontendOrigin := os.Getenv("FRONTEND_ORIGIN")
+	if frontendOrigin == "" {
+		frontendOrigin = "http://localhost:5173" 
+	}
+
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://ecodrive.liamcariou.fr"},
+		AllowOrigins:     []string{frontendOrigin},
 		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: true,

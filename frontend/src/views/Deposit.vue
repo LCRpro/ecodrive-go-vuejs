@@ -66,7 +66,7 @@
 
 <script setup>
 import { ref } from 'vue'
-
+const paiementServiceURL = import.meta.env.VITE_PAIEMENT_SERVICE_URL
 const amount = ref(10)
 const card = ref('')        
 const cardDisplay = ref('') 
@@ -115,7 +115,7 @@ async function submit() {
     error.value = "Utilisateur inconnu"
     return
   }
-  const res = await fetch('https://paiement-ecodrive.liamcariou.fr/deposit', {
+  const res = await fetch(paiementServiceURL + '/deposit', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
     body: JSON.stringify({

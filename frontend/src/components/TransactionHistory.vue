@@ -43,7 +43,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-
+const paiementServiceURL = import.meta.env.VITE_PAIEMENT_SERVICE_URL
 const transactions = ref([])
 const loading = ref(true)
 
@@ -66,7 +66,7 @@ onMounted(async () => {
   const googleId = getGoogleIdFromToken(token)
   if (!token || !googleId) return
 
-  const res = await fetch(`https://paiement-ecodrive.liamcariou.fr/transactions/${googleId}`, {
+  const res = await fetch(`${paiementServiceURL}/transactions/${googleId}`, {
     headers: { Authorization: 'Bearer ' + token }
   })
   if (res.ok) transactions.value = await res.json()

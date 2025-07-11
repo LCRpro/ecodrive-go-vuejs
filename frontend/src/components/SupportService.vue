@@ -159,6 +159,11 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 
+
+const supportServiceURL = import.meta.env.VITE_SUPPORT_SERVICE_URL
+const userServiceURL = import.meta.env.VITE_USER_SERVICE_URL
+
+
 const form = reactive({
   category: '',
   message: ''
@@ -190,8 +195,7 @@ async function submitTicket() {
     formError.value = 'Tous les champs sont obligatoires.'
     return
   }
-  const res = await fetch('https://support-ecodrive.liamcariou.fr/support', {
-    method: 'POST',
+  const res = await fetch(`${supportServiceURL}/support`, {    method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ google_id, category: form.category, message: form.message })
   })
@@ -208,13 +212,13 @@ async function submitTicket() {
 
 async function fetchTickets() {
   if (!google_id) return
-  const res = await fetch('https://support-ecodrive.liamcariou.fr/support/user/' + google_id)
-  tickets.value = res.ok ? await res.json() : []
+  const res = await fetch(`${supportServiceURL}/support/user/` + google_id)
+    tickets.value = res.ok ? await res.json() : []
 }
 
 async function fetchAllTickets() {
-  const res = await fetch('https://support-ecodrive.liamcariou.fr/support/all')
-  allTickets.value = res.ok ? await res.json() : []
+  const res = await fetch(`${supportServiceURL}/support/all`)
+    allTickets.value = res.ok ? await res.json() : []
   if (allTickets.value.length) {
     await resolveUserNames(allTickets.value)
   }
@@ -231,7 +235,7 @@ async function submitReply() {
     replyError.value = 'Réponse obligatoire'
     return
   }
-  const res = await fetch(`https://support-ecodrive.liamcariou.fr/support/reply/${modalTicket.value.id}`, {
+  const res = await fetch(`${supportServiceURL}/support/reply/${modalTicket.value.id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ admin_reply: replyText.value, status: 'fermé' })
@@ -249,8 +253,8 @@ async function resolveUserNames(tickets) {
   const ids = [...new Set(tickets.map(t => t.google_id).filter(Boolean))]
   for (const id of ids) {
     if (!userNames.value[id]) {
-      const res = await fetch(`https://user-ecodrive.liamcariou.fr/users/${id}`)
-      if (res.ok) {
+      const res = await fetch(`${userServiceURL}/users/${id}`)
+        if (res.ok) {
         const user = await res.json()
         userNames.value[id] = user.name
       } else {

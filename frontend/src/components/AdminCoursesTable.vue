@@ -193,6 +193,10 @@
   
 </template>
 <script setup>
+
+const driverServiceURL = import.meta.env.VITE_DRIVER_SERVICE_URL
+
+
 defineProps({
   courses: {
     type: Array,
@@ -232,8 +236,8 @@ const payload = {
   co2: editingCourse.value.co2,
   status: editingCourse.value.status
 }
-const res = await fetch(`https://driver-ecodrive.liamcariou.fr/courses/${editingCourse.value.id}`, {
-  method: 'PATCH',
+const res = await fetch(`${driverServiceURL}/courses/${editingCourse.value.id}`, {
+method: 'PATCH',
   headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
   body: JSON.stringify(payload)
 })

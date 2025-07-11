@@ -92,6 +92,7 @@
 </template>
 
 <script setup>
+const userServiceURL = import.meta.env.VITE_USER_SERVICE_URL
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import BalanceDisplay from './components/BalanceDisplay.vue'
@@ -131,7 +132,7 @@ async function becomeAdmin() {
   const tokenValue = localStorage.getItem('token')
   if (!tokenValue) return
   try {
-    const res = await fetch('https://user-ecodrive.liamcariou.fr/become-admin', {
+    const res = await fetch(userServiceURL + '/become-admin', {
       method: 'PATCH',
       headers: {
         'Authorization': 'Bearer ' + tokenValue,

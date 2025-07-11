@@ -73,7 +73,7 @@ func HandleGoogleCallback(c *gin.Context) {
 		c.String(http.StatusInternalServerError, "JWT error: %s", err)
 		return
 	}
-	c.Redirect(http.StatusTemporaryRedirect, "https://ecodrive.liamcariou.fr/callback?token="+tokenString)
+	c.Redirect(http.StatusTemporaryRedirect, frontendCallbackURL+"?token="+tokenString)
 }
 
 func findOrCreateUser(gu GoogleUser) (User, error) {
@@ -82,7 +82,7 @@ func findOrCreateUser(gu GoogleUser) (User, error) {
 		"email":     gu.Email,
 		"name":      gu.Name,
 	})
-	resp, err := http.Post("https://user-ecodrive.liamcariou.fr/users/find-or-create", "application/json", strings.NewReader(string(payload)))
+	resp, err := http.Post(userServiceURL+"/users/find-or-create", "application/json", strings.NewReader(string(payload)))
 	if err != nil {
 		return User{}, err
 	}

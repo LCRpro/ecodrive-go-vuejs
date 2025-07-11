@@ -41,6 +41,11 @@ import AdminDriverRequests from '../components/AdminDriverRequests.vue'
 import AdminTransactions from '../components/AdminTransactions.vue'
 import AdminCoursesTable from '../components/AdminCoursesTable.vue'
 
+const driverServiceURL = import.meta.env.VITE_DRIVER_SERVICE_URL
+const adminServiceURL = import.meta.env.VITE_ADMIN_SERVICE_URL
+const paiementServiceURL = import.meta.env.VITE_PAIEMENT_SERVICE_URL
+const userServiceURL = import.meta.env.VITE_USER_SERVICE_URL
+
 const courses = ref([])
 const router = useRouter()
 const appBalance = ref(null)
@@ -65,7 +70,7 @@ onMounted(async () => {
 
 async function fetchCourses() {
   const token = localStorage.getItem('token')
-  const res = await fetch('https://driver-ecodrive.liamcariou.fr/courses', {
+  const res = await fetch(driverServiceURL + '/courses', {
     headers: { Authorization: 'Bearer ' + token }
   })
   courses.value = res.ok ? await res.json() : []
@@ -74,7 +79,7 @@ async function fetchCourses() {
 async function fetchUsers() {
   loading.value = true
   const token = localStorage.getItem('token')
-  const res = await fetch('https://admin-ecodrive.liamcariou.fr/admin/users', {
+  const res = await fetch(adminServiceURL + '/admin/users', {
     headers: { Authorization: 'Bearer ' + token }
   })
   users.value = res.ok ? await res.json() : []
@@ -83,7 +88,7 @@ async function fetchUsers() {
 
 async function fetchDriverRequests() {
   const token = localStorage.getItem('token')
-  const res = await fetch('https://admin-ecodrive.liamcariou.fr/admin/driver-requests', {
+  const res = await fetch(adminServiceURL + '/admin/driver-requests', {
     headers: { Authorization: 'Bearer ' + token }
   })
   driverRequests.value = res.ok ? await res.json() : []
@@ -95,7 +100,7 @@ function getUserByGoogleId(google_id) {
 
 async function handleRequest(id, action) {
   const token = localStorage.getItem('token')
-  await fetch('https://admin-ecodrive.liamcariou.fr/admin/driver-requests/' + id, {
+  await fetch(adminServiceURL + '/admin/driver-requests/' + id, {
     method: 'PATCH',
     headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
     body: JSON.stringify({ action })
@@ -105,7 +110,7 @@ async function handleRequest(id, action) {
 }
 
 async function fetchAppBalance() {
-  const res = await fetch('https://user-ecodrive.liamcariou.fr/app-balance')
+  const res = await fetch(userServiceURL + '/app-balance')
   if (res.ok) {
     const data = await res.json()
     appBalance.value = data.balance
@@ -114,7 +119,7 @@ async function fetchAppBalance() {
 
 async function fetchTransactions() {
   const token = localStorage.getItem('token')
-  const res = await fetch('https://paiement-ecodrive.liamcariou.fr/transactions', {
+  const res = await fetch(paiementServiceURL + '/transactions', {
     headers: { Authorization: 'Bearer ' + token }
   })
   transactions.value = res.ok ? await res.json() : []

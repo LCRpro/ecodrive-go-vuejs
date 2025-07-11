@@ -15,6 +15,7 @@
 </template>
 <script setup>
 import { ref, onMounted, watch } from 'vue'
+const userServiceURL = import.meta.env.VITE_USER_SERVICE_URL
 const balance = ref(null)
 const googleId = (() => {
   try {
@@ -23,7 +24,7 @@ const googleId = (() => {
 })()
 async function fetchBalance() {
   if (!googleId) return
-  const res = await fetch(`https://user-ecodrive.liamcariou.fr/users/${googleId}`)
+  const res = await fetch(`${userServiceURL}/users/${googleId}`)
   if (res.ok) {
     const user = await res.json()
     balance.value = user.balance ?? 0

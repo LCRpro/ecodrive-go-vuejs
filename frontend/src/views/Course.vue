@@ -145,6 +145,7 @@
 </template>
 
 <script setup>
+const driverServiceURL = import.meta.env.VITE_DRIVER_SERVICE_URL
 import { ref, onMounted, computed, watch } from 'vue'
 import GoogleMap from '../components/GoogleMap.vue'
 
@@ -290,7 +291,7 @@ async function fetchActiveCourse() {
   const token = localStorage.getItem('token')
   if (!token) return
   const payload = JSON.parse(atob(token.split('.')[1]))
-  const res = await fetch('https://driver-ecodrive.liamcariou.fr/courses?role=passenger&id=' + payload.sub, {
+  const res = await fetch(`${driverServiceURL}/courses?role=passenger&id=${payload.sub}`, {
     headers: { Authorization: 'Bearer ' + token }
   })
   if (res.ok) {
@@ -354,7 +355,7 @@ async function requestCourse() {
   const token = localStorage.getItem('token')
   const payload = JSON.parse(atob(token.split('.')[1]))
   const passengerName = localStorage.getItem('name') || payload.name || "Nom inconnu"
-  const res = await fetch('https://driver-ecodrive.liamcariou.fr/courses', {
+  const res = await fetch(`${driverServiceURL}/courses`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
     body: JSON.stringify({
@@ -382,7 +383,7 @@ async function cancelCourse() {
   cancelError.value = ''
   if (!activeCourse.value) return
   const token = localStorage.getItem('token')
-  const res = await fetch(`https://driver-ecodrive.liamcariou.fr/courses/${activeCourse.value.id}/cancel`, {
+  const res = await fetch(`${driverServiceURL}/courses/${activeCourse.value.id}/cancel`, {
     method: 'PATCH',
     headers: { Authorization: 'Bearer ' + token }
   })

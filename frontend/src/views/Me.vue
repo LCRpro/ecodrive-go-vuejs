@@ -77,6 +77,8 @@ import DriverRequestCard from '../components/DriverRequestCard.vue'
 import TransactionHistory from '../components/TransactionHistory.vue'
 import CoursesCard from '../components/CoursesCard.vue'
 import UserStatsCards from '../components/UserStatsCards.vue'
+const userServiceURL = import.meta.env.VITE_USER_SERVICE_URL
+const driverServiceURL = import.meta.env.VITE_DRIVER_SERVICE_URL
 const user = ref(null)
 const driverRequest = ref(null)
 const router = useRouter()
@@ -134,7 +136,7 @@ async function resolveDriverNames(courses) {
   const ids = [...new Set(courses.map(c => c.driver_id).filter(Boolean))]
   for (const id of ids) {
     if (!driverNames.value[id]) {
-      const res = await fetch(`https://user-ecodrive.liamcariou.fr/users/${id}`)
+      const res = await fetch(`${userServiceURL}/users/${id}`)
       if (res.ok) {
         const user = await res.json()
         driverNames.value[id] = user.name
@@ -148,7 +150,7 @@ async function resolvePassengerNames(courses) {
   const ids = [...new Set(courses.map(c => c.passenger_id).filter(Boolean))]
   for (const id of ids) {
     if (!passengerNames.value[id]) {
-      const res = await fetch(`https://user-ecodrive.liamcariou.fr/users/${id}`)
+      const res = await fetch(`${userServiceURL}/users/${id}`)
       if (res.ok) {
         const user = await res.json()
         passengerNames.value[id] = user.name
@@ -160,7 +162,7 @@ async function resolvePassengerNames(courses) {
 }
 
 async function fetchMyCourses(googleId) {
-  const resPass = await fetch(`https://driver-ecodrive.liamcariou.fr/courses?role=passenger&id=${googleId}`)
+  const resPass = await fetch(`${driverServiceURL}/courses?role=passenger&id=${googleId}`)
   if (resPass.ok) {
     passengerCourses.value = await resPass.json()
     await resolveDriverNames(passengerCourses.value)
@@ -169,7 +171,7 @@ async function fetchMyCourses(googleId) {
     passengerCourses.value = []
   }
   if (user.value && user.value.roles?.includes("ROLE_DRIVER")) {
-    const resDrv = await fetch(`https://driver-ecodrive.liamcariou.fr/courses?role=driver&id=${googleId}`)
+    const resDrv = await fetch(`${driverServiceURL}/courses?role=driver&id=${googleId}`)
     if (resDrv.ok) {
       driverCourses.value = await resDrv.json()
       await resolvePassengerNames(driverCourses.value)
@@ -204,11 +206,11 @@ onMounted(async () => {
     router.push('/login')
     return
   }
-  const res = await fetch(`https://user-ecodrive.liamcariou.fr/users/${googleId}`)
+  const res = await fetch(`${userServiceURL}/users/${googleId}`)
   if (res.ok) user.value = await res.json()
   else router.push('/login')
 
-  const drres = await fetch(`https://user-ecodrive.liamcariou.fr/driver-requests`)
+  const drres = await fetch(`${userServiceURL}/driver-requests`)
   if (drres.ok) {
     const list = await drres.json()
     driverRequest.value = list.find(
@@ -221,7 +223,7 @@ onMounted(async () => {
 async function updateProfile() {
   const token = localStorage.getItem('token')
   const googleId = getGoogleIdFromToken(token)
-  const res = await fetch(`https://user-ecodrive.liamcariou.fr/users/${googleId}`, {
+  const res = await fetch(`${userServiceURL}/users/${googleId}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -250,14 +252,14 @@ async function requestDriver() {
     return
   }
   const payload = { google_id: googleId, car: modalCar.value, plate: modalPlate.value }
-  const res = await fetch(`https://user-ecodrive.liamcariou.fr/driver-requests`, {
+  const res = await fetch(`${userServiceURL}/driver-requests`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   })
   if (res.ok) {
     alert('Demande envoyée à l’admin !')
-    const drres = await fetch(`https://user-ecodrive.liamcariou.fr/driver-requests`)
+    const drres = await fetch(`${userServiceURL}/driver-requests`)
     if (drres.ok) {
       const list = await drres.json()
       driverRequest.value = list.find(

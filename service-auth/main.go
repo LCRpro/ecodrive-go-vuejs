@@ -11,16 +11,34 @@ import (
 )
 
 var (
-	jwtSecret         []byte // juste déclaré ici
-	googleOauthConfig *oauth2.Config
+	jwtSecret           []byte // juste déclaré ici
+	googleOauthConfig   *oauth2.Config
+	userServiceURL      string
+	frontendCallbackURL string
 )
 
 func main() {
 	_ = godotenv.Load()                         // charge bien .env
 	jwtSecret = []byte(os.Getenv("JWT_SECRET")) // ICI on lit la vraie valeur de .env
 
+	userServiceURL = os.Getenv("USER_SERVICE_URL")
+	if userServiceURL == "" {
+		userServiceURL = "http://localhost:8002"
+	}
+
+	frontendCallbackURL = os.Getenv("FRONTEND_CALLBACK_URL")
+	if frontendCallbackURL == "" {
+		frontendCallbackURL = "http://localhost:5173/callback"
+	}
+	
+
+	authRedirectURL := os.Getenv("AUTH_REDIRECT_URL")
+	if authRedirectURL == "" {
+		authRedirectURL = "http://localhost:8000/auth/callback"
+	}
+
 	googleOauthConfig = &oauth2.Config{
-		RedirectURL:  "https://auth-ecodrive.liamcariou.fr/auth/callback",
+		RedirectURL:  authRedirectURL,
 		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
 		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
 		Scopes: []string{
@@ -31,9 +49,14 @@ func main() {
 		Endpoint: google.Endpoint,
 	}
 
+	frontendOrigin := os.Getenv("FRONTEND_ORIGIN")
+	if frontendOrigin == "" {
+		frontendOrigin = "http://localhost:5173"
+	}
+
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://ecodrive.liamcariou.fr"},
+		AllowOrigins:     []string{frontendOrigin},
 		AllowMethods:     []string{"GET", "POST", "PATCH", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: true,

@@ -47,12 +47,17 @@ func main() {
 	db.AutoMigrate(&SupportTicket{})
 
 	r := gin.Default()
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://ecodrive.liamcariou.fr"},
-		AllowMethods:     []string{"GET", "POST", "PATCH"},
-		AllowHeaders:     []string{"Content-Type"},
-		AllowCredentials: true,
-	}))
+frontendOrigin := os.Getenv("FRONTEND_ORIGIN")
+if frontendOrigin == "" {
+	frontendOrigin = "http://localhost:5173" 
+}
+
+r.Use(cors.New(cors.Config{
+	AllowOrigins:     []string{frontendOrigin},
+	AllowMethods:     []string{"GET", "POST", "PATCH"},
+	AllowHeaders:     []string{"Content-Type"},
+	AllowCredentials: true,
+}))
 
 	r.POST("/support", CreateSupportTicket)
 	r.GET("/support/user/:google_id", ListUserTickets)
