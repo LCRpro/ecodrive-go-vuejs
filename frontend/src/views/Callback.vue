@@ -52,7 +52,7 @@ onMounted(async () => {
   } catch (e) {
   }
 
-router.replace('/')
+  router.replace('/')
   window.location.replace('/')
 })
 </script>

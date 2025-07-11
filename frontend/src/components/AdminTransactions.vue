@@ -1,12 +1,12 @@
 <template>
   <div class="mb-10">
-<div class="flex flex-col items-center mb-10">
-  <h3
-    class="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg text-center"
-  >
-    Transactions
-  </h3>
-</div>    <div class="overflow-x-auto w-full">
+    <div class="flex flex-col items-center mb-10">
+      <h3
+        class="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg text-center">
+        Transactions
+      </h3>
+    </div>
+    <div class="overflow-x-auto w-full">
       <table class="min-w-[600px] w-full text-sm border border-gray-700 rounded-xl overflow-hidden bg-gray-900">
         <thead>
           <tr>

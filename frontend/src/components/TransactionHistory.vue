@@ -1,7 +1,9 @@
 <template>
   <div class="bg-gray-900 bg-opacity-90 rounded-2xl shadow-lg border border-gray-800 p-6 mb-4 mt-8">
-      <div class="flex mb-6">
-      <h2 class="text-2xl font-bold font-extrabold bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg text-center">Historique de mes transactions</h2>
+    <div class="flex mb-6">
+      <h2
+        class="text-2xl font-bold font-extrabold bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg text-center">
+        Historique de mes transactions</h2>
     </div>
     <div v-if="loading" class="text-gray-400 mb-4">Chargement...</div>
     <div v-else>

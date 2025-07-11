@@ -2,8 +2,10 @@
   <div class="bg-gray-900 bg-opacity-90 rounded-2xl shadow-lg border border-gray-800 p-6 mb-4">
 
 
-      <div class="flex mb-6">
-      <h2 class="text-2xl font-bold font-extrabold bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg text-center"> {{ mode === 'passenger' ? 'Mes courses passager' : 'Mes courses en tant que driver' }}</h2>
+    <div class="flex mb-6">
+      <h2
+        class="text-2xl font-bold font-extrabold bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg text-center">
+        {{ mode === 'passenger' ? 'Mes courses passager' : 'Mes courses en tant que driver' }}</h2>
     </div>
 
     <div class="overflow-x-auto w-full">
@@ -63,7 +65,7 @@
               <span v-else-if="c.status === 'cancelled'"
                 class="px-2 py-1 rounded-full bg-rose-600 text-white text-xs font-semibold">Annulée</span>
               <span v-else class="px-2 py-1 rounded-full bg-gray-700 text-gray-200 text-xs font-semibold">{{ c.status
-                }}</span>
+              }}</span>
             </td>
           </tr>
         </tbody>
