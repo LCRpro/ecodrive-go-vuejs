@@ -9,7 +9,7 @@ import Withdraw from '../views/Withdraw.vue'
 import Course from '../views/Course.vue'
 import Driver from '../views/Driver.vue'
 import Mentions from '../views/Mentions.vue'
-import Conditions from '../views/Conditions.vue'
+import Conditions from '../views/conditions.vue'
 import Support from '../views/SupportView.vue'
 
 const routes = [
