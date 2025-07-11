@@ -1,0 +1,86 @@
+name: Go Microservices CI
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    branches: [dev, main]
+
+jobs:
+  test-driver:
+    name: Test service-driver
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./service-driver
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - run: go test -v
+
+  test-user:
+    name: Test service-user
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./service-user
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - run: go test -v
+
+  test-support:
+    name: Test service-support
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./service-support
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - run: go test -v
+
+  test-paiement:
+    name: Test service-paiement
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./service-paiement
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - run: go test -v
+
+  test-admin:
+    name: Test service-admin
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./service-admin
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - run: go test -v
+
+  test-auth:
+    name: Test service-auth
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./service-auth
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - run: go test -v

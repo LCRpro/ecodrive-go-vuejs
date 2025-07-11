@@ -1,0 +1,34 @@
+<template>
+  <span
+    v-if="balance !== null"
+    class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-gradient-to-r from-emerald-700/80 to-violet-800/80 border border-violet-600 text-white font-semibold shadow transition duration-200"
+    style="margin-left: 20px; font-size: 1.07rem;"
+  >
+  
+    <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10" class="stroke-amber-300" />
+      <path d="M12 8v4l2 2" class="stroke-amber-400" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+    <span>Solde&nbsp;:</span>
+    <span class="font-bold text-amber-300">{{ balance.toFixed(2) }} €</span>
+  </span>
+</template>
+<script setup>
+import { ref, onMounted, watch } from 'vue'
+const balance = ref(null)
+const googleId = (() => {
+  try {
+    return JSON.parse(atob(localStorage.getItem('token').split('.')[1])).sub
+  } catch { return null }
+})()
+async function fetchBalance() {
+  if (!googleId) return
+  const res = await fetch(`http://localhost:8002/users/${googleId}`)
+  if (res.ok) {
+    const user = await res.json()
+    balance.value = user.balance ?? 0
+  }
+}
+onMounted(fetchBalance)
+window.addEventListener('focus', fetchBalance) 
+</script>
