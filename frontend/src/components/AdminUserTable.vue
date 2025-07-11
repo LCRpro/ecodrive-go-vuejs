@@ -33,6 +33,10 @@
               Plaque</th>
             <th
               class="bg-gray-800 text-violet-200 font-semibold text-center border border-gray-700 px-3 py-2 md:px-4 md:py-3">
+              Solde (€)
+            </th>
+            <th
+              class="bg-gray-800 text-violet-200 font-semibold text-center border border-gray-700 px-3 py-2 md:px-4 md:py-3">
               Actions</th>
 
           </tr>
@@ -55,8 +59,10 @@
             </td>
             <td class="text-gray-200 border border-gray-700 text-center px-3 py-2 md:px-4 md:py-3">{{ u.car || '-' }}
             </td>
-            <td class="text-gray-200 border border-gray-700 text-center px-3 py-2 md:px-4 md:py-3">{{ u.plate || '-' }}
-            </td>
+            <td class="text-gray-200 border border-gray-700 text-center px-3 py-2 md:px-4 md:py-3">{{ u.plate || '-' }}</td>
+<td class="text-gray-200 border border-gray-700 text-center px-3 py-2 md:px-4 md:py-3">
+  {{ isNaN(Number(u.balance)) ? '0.00' : Number(u.balance).toFixed(2) }} € 
+</td>
             <td class="text-gray-200 border border-gray-700 text-center px-3 py-2 md:px-4 md:py-3">
               <button @click="openEdit(u)" class="text-violet-400 hover:text-violet-200">✏️</button>
             </td>
@@ -197,7 +203,7 @@ async function saveEdit() {
   })
   if (res.ok) {
     showModal.value = false
-    emit('refresh')
+    window.location.reload()
   } else {
     error.value = 'Erreur lors de la sauvegarde'
   }
@@ -260,3 +266,4 @@ watch(
   { deep: true }
 )
 </script>
+  

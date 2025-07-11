@@ -1,13 +1,8 @@
 <template>
-  <div
-    class="bg-gradient-to-br from-gray-900/95 via-gray-900/90 to-violet-950/80 rounded-2xl shadow-xl border border-gray-800 p-7 mb-4">
+   
+  <div class="bg-gradient-to-br from-gray-900/95 via-gray-900/90 to-violet-950/80 rounded-2xl shadow-xl border border-gray-800 p-7 mb-4">  
     <div class="flex items-center gap-3 mb-4">
-      <svg class="w-8 h-8 text-violet-400" fill="none" viewBox="0 0 24 24">
-        <rect x="2" y="10" width="20" height="6" rx="2" fill="#7c3aed" />
-        <rect x="6" y="7" width="12" height="5" rx="2" fill="#a78bfa" />
-        <circle cx="7" cy="18" r="2" fill="#d1d5db" />
-        <circle cx="17" cy="18" r="2" fill="#d1d5db" />
-      </svg>
+    
       <h2 class="text-2xl font-bold font-extrabold bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg text-center">Devenir driver</h2>
     </div>
     <div v-if="driverRequest">

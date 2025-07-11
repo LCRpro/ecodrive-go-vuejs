@@ -93,7 +93,7 @@
             autocomplete="off"
             class="bg-gray-800 border border-gray-700 text-white placeholder-gray-400 rounded-lg px-4 py-3 mb-3 w-full focus:outline-none focus:ring-2 focus:ring-violet-500"
           />
-          <ul v-if="suggestions.length" class="bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-auto absolute z-50 w-full text-white">
+          <ul v-if="suggestions.length" class="bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-auto absolute z-50  text-white">
             <li 
               v-for="addr in suggestions" 
               :key="addr.place_id" 
@@ -114,10 +114,19 @@
         <div v-if="error" class="mt-4 rounded-lg bg-red-700 bg-opacity-80 text-white p-3 text-center font-semibold">
           {{ error }}
         </div>
-        <div v-if="price" class="mt-6 text-gray-300 space-y-1">
-          <div class="font-bold text-white">Prix estimé : <span class="font-mono">{{ price }} €</span></div>
-          <div v-if="km">Distance : <span class="font-mono">{{ km }} km</span></div>
-          <div v-if="duration">Durée estimée : <span class="font-mono">{{ duration }}</span></div>
+        <div v-if="price" class="mt-6 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-950 rounded-xl border border-gray-700 px-6 py-5 shadow-lg text-sm text-gray-300 space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-xs uppercase tracking-widest text-gray-400 font-semibold">Prix estimé</span>
+            <span class="text-amber-300 font-bold text-lg font-mono">{{ price }} €</span>
+          </div>
+          <div class="flex justify-between items-center" v-if="km">
+            <span class="text-xs uppercase tracking-widest text-gray-400 font-semibold">Distance</span>
+            <span class="text-blue-200 font-semibold font-mono">{{ km }} km</span>
+          </div>
+          <div class="flex justify-between items-center" v-if="duration">
+            <span class="text-xs uppercase tracking-widest text-gray-400 font-semibold">Durée estimée</span>
+            <span class="text-cyan-300 font-semibold font-mono">{{ duration }}</span>
+          </div>
         </div>
       </template>
     </div>
@@ -125,6 +134,7 @@
       <GoogleMap
         :from="mapFrom"
         :to="mapTo"
+        :marker="myPosition"
         :follow="activeCourse && activeCourse.status === 'in_progress'"
         :zoomToCurrent="zoomOnMe"
         :currentPosition="myPosition"
@@ -151,6 +161,7 @@ function startGeoloc() {
           lat: pos.coords.latitude,
           lng: pos.coords.longitude
         }
+        
       },
       err => {},
       { enableHighAccuracy: true }

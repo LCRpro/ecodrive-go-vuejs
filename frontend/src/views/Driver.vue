@@ -1,5 +1,22 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-950 to-violet-900 flex flex-col items-center px-2 py-10 gap-8">
+
+      <div class="flex flex-col items-center mb-12 mt-6">
+        <span class="mb-3 px-4 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-violet-700 text-white font-bold text-xs shadow uppercase tracking-widest">
+          Interface chauffeur
+        </span>
+        <h2
+          class="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-violet-400 via-emerald-400 to-violet-400 bg-clip-text text-transparent drop-shadow-lg text-center"
+        >
+          Gérer mes courses
+        </h2>
+        <div class="text-gray-400 text-sm mt-2 font-medium text-center">
+          Visualisez vos trajets, acceptez des courses et suivez leur progression en temps réel.
+        </div>
+      </div>
+
+  
+   
     <DriverRequestedCourses
       v-if="displayedCourses.length && displayedCourses[0].status === 'requested'"
       :displayedCourses="displayedCourses"
@@ -26,7 +43,6 @@
         />
       </template>
       <template #default="{ course }">
-        <!-- Affiche les infos de la course (Départ/Arrivée/etc), réutilise ce que tu avais -->
         <div class="flex items-center justify-between">
           <span class="text-xs text-gray-400 uppercase tracking-widest font-bold">Départ</span>
           <span class="text-emerald-400 font-mono text-base font-semibold text-right">
@@ -62,7 +78,6 @@
         </div>
       </template>
     </DriverActiveCourse>
-    <!-- Map container alone for requested and idle (si besoin) -->
     <DriverMapContainer
       v-if="displayedCourses.length && displayedCourses[0].status === 'requested' || isIdle"
       :from="mapFrom"
@@ -156,10 +171,11 @@ onMounted(() => {
   if (navigator.geolocation) {
     geoWatchId = navigator.geolocation.watchPosition(
       pos => {
-        myPosition.value = {
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude
-        }
+   myPosition.value = {
+  lat: pos.coords.latitude,
+  lng: pos.coords.longitude
+}
+zoomOnMe.value = true
 
       },
       err => {

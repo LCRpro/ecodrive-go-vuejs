@@ -13,7 +13,7 @@ const props = defineProps({
   to: Object,                
   follow: Boolean,           
   zoomToCurrent: Boolean,     
-  currentPosition: Object    
+  currentPosition: Object
 })
 
 const mapDiv = ref(null)
@@ -78,6 +78,8 @@ onMounted(() => {
       updateMyMarker(props.currentPosition)
       centerMap(props.currentPosition, 15)
     }
+
+
   }
 
   if (!window.google || !window.google.maps) {
@@ -114,4 +116,5 @@ watch(
     }
   }
 )
+
 </script>

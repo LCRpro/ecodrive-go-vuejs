@@ -1,8 +1,11 @@
 <template>
   <div class="bg-gray-900 bg-opacity-90 rounded-2xl shadow-lg border border-gray-800 p-6 mb-4">
-    <h3 class="text-xl font-bold mb-3" :class="mode === 'passenger' ? 'text-emerald-400' : 'text-violet-400'">
-      {{ mode === 'passenger' ? 'Mes courses passager' : 'Mes courses en tant que driver' }}
-    </h3>
+
+
+      <div class="flex mb-6">
+      <h2 class="text-2xl font-bold font-extrabold bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg text-center"> {{ mode === 'passenger' ? 'Mes courses passager' : 'Mes courses en tant que driver' }}</h2>
+    </div>
+
     <div class="overflow-x-auto w-full">
       <table class="min-w-[700px] w-full text-sm border border-gray-700 rounded-xl overflow-hidden bg-gray-900">
         <thead>

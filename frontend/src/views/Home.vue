@@ -181,9 +181,10 @@ const totalKm = ref(null)
 async function fetchStats() {
   const res = await fetch('https://driver-ecodrive.liamcariou.fr/courses')
   if (res.ok) {
-    const data = await res.json()
+    const rawData = await res.json()
+    const data = rawData.filter(c => c.status === 'completed')
     countCourses.value = data.length
-    totalCO2.value = data.reduce((sum, c) => sum + (c.CO2 || 0), 0).toFixed(1)
+    totalCO2.value = data.reduce((sum, c) => sum + (c.co2 || 0), 0).toFixed(1)
     totalKm.value = data.reduce((sum, c) => sum + (c.distance_km || 0), 0).toFixed(1)
   } else {
     countCourses.value = totalCO2.value = totalKm.value = '…'

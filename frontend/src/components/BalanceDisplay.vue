@@ -5,10 +5,10 @@
     style="margin-left: 20px; font-size: 1.07rem;"
   >
   
-    <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="10" class="stroke-amber-300" />
-      <path d="M12 8v4l2 2" class="stroke-amber-400" stroke-linecap="round" stroke-linejoin="round" />
-    </svg>
+ <svg class="w-5 h-5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+  <circle cx="12" cy="12" r="10" class="stroke-amber-300" fill="#FFD700"/>
+  <text x="12" y="16" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold">€</text>
+</svg>
     <span>Solde&nbsp;:</span>
     <span class="font-bold text-amber-300">{{ balance.toFixed(2) }} €</span>
   </span>
