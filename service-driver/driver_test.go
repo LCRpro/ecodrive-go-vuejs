@@ -13,7 +13,7 @@ import (
 )
 
 type MemCourse struct {
-	ID uint64
+	ID             uint64
 	PassengerID    string
 	PassengerName  string
 	PassengerEmail string
@@ -244,13 +244,13 @@ func TestDriverFlow(t *testing.T) {
 	if w.Code != 201 {
 		t.Fatalf("Course not created, got %d, body: %s", w.Code, w.Body.String())
 	}
-var created map[string]interface{}
-json.Unmarshal(w.Body.Bytes(), &created)
-idFloat, ok := created["ID"].(float64)
-if !ok {
-	t.Fatalf("No id in response: %v", created)
-}
-id := int(idFloat)
+	var created map[string]interface{}
+	json.Unmarshal(w.Body.Bytes(), &created)
+	idFloat, ok := created["ID"].(float64)
+	if !ok {
+		t.Fatalf("No id in response: %v", created)
+	}
+	id := int(idFloat)
 
 	w = httptest.NewRecorder()
 	req, _ = http.NewRequest("GET", "/courses/"+strconv.Itoa(id), nil)
@@ -326,13 +326,13 @@ func TestCourseCancel(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/courses", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	r.ServeHTTP(w, req)
-var created map[string]interface{}
-json.Unmarshal(w.Body.Bytes(), &created)
-idFloat, ok := created["ID"].(float64)
-if !ok {
-	t.Fatalf("No id in response: %v", created)
-}
-id := int(idFloat)
+	var created map[string]interface{}
+	json.Unmarshal(w.Body.Bytes(), &created)
+	idFloat, ok := created["ID"].(float64)
+	if !ok {
+		t.Fatalf("No id in response: %v", created)
+	}
+	id := int(idFloat)
 
 	w = httptest.NewRecorder()
 	req, _ = http.NewRequest("PATCH", "/courses/"+strconv.Itoa(id)+"/cancel", nil)

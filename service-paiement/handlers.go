@@ -10,7 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-
 var transactions []Transaction
 var nextID uint
 var txMu sync.Mutex

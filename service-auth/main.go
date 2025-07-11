@@ -11,15 +11,15 @@ import (
 )
 
 var (
-	jwtSecret           []byte // juste déclaré ici
+	jwtSecret           []byte
 	googleOauthConfig   *oauth2.Config
 	userServiceURL      string
 	frontendCallbackURL string
 )
 
 func main() {
-	_ = godotenv.Load()                         // charge bien .env
-	jwtSecret = []byte(os.Getenv("JWT_SECRET")) // ICI on lit la vraie valeur de .env
+	_ = godotenv.Load()
+	jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
 	userServiceURL = os.Getenv("USER_SERVICE_URL")
 	if userServiceURL == "" {
@@ -30,7 +30,6 @@ func main() {
 	if frontendCallbackURL == "" {
 		frontendCallbackURL = "http://localhost:5173/callback"
 	}
-	
 
 	authRedirectURL := os.Getenv("AUTH_REDIRECT_URL")
 	if authRedirectURL == "" {

@@ -36,10 +36,9 @@ func main() {
 
 	r := gin.Default()
 
-
 	frontendOrigin := os.Getenv("FRONTEND_ORIGIN")
 	if frontendOrigin == "" {
-		frontendOrigin = "http://localhost:5173" 
+		frontendOrigin = "http://localhost:5173"
 	}
 
 	r.Use(cors.New(cors.Config{

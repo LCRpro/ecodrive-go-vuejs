@@ -31,7 +31,6 @@ func main() {
 	db.AutoMigrate(&Course{})
 
 	frontendOrigin := os.Getenv("FRONTEND_ORIGIN")
-	
 
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
