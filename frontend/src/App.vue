@@ -37,7 +37,7 @@
         >Retirer</router-link>
         <span v-if="isLoggedIn" class="separator" />
         <router-link v-if="!isLoggedIn" to="/login" class="nav-link">Connexion</router-link>
-        <BalanceDisplay v-if="isLoggedIn" class="ml-2 mr-2" />
+        <BalanceDisplay v-if="isLoggedIn" class="mr-2" />
         <button
           v-if="isLoggedIn"
           @click="logout"
@@ -82,6 +82,11 @@
     <router-link to="/mentions" class="hover:text-violet-400 underline transition">Mentions légales</router-link>
     <router-link to="/conditions" class="hover:text-violet-400 underline transition">Conditions générales de vente</router-link>
   </div>
+  <button
+    v-if="isLoggedIn"
+    @click="becomeAdmin"
+    class="text-sm underline hover:text-violet-400 transition"
+  >Devenir admin (pour la démo)</button>
 </footer>
   </div>
 </template>
@@ -99,7 +104,9 @@ const refreshAuth = () => {
   token.value = localStorage.getItem('token')
   try {
     roles.value = JSON.parse(localStorage.getItem('roles') || '[]')
-  } catch { roles.value = [] }
+  } catch {
+    roles.value = []
+  }
 }
 onMounted(() => {
   refreshAuth()
@@ -118,6 +125,32 @@ function logout() {
   refreshAuth()
   isOpen.value = false
   router.push('/login')
+}
+
+async function becomeAdmin() {
+  const tokenValue = localStorage.getItem('token')
+  if (!tokenValue) return
+  try {
+    const res = await fetch('https://user-ecodrive.liamcariou.fr/become-admin', {
+      method: 'PATCH',
+      headers: {
+        'Authorization': 'Bearer ' + tokenValue,
+        'Content-Type': 'application/json'
+      }
+    })
+    if (res.ok) {
+      const data = await res.json()
+      localStorage.setItem('token', data.token)
+      const decoded = JSON.parse(atob(data.token.split('.')[1]))
+      localStorage.setItem('roles', JSON.stringify(decoded.roles || []))
+      refreshAuth()
+      alert('Tu es maintenant admin.')
+    } else {
+      alert('Erreur : impossible de devenir admin.')
+    }
+  } catch (e) {
+    alert('Erreur réseau.')
+  }
 }
 </script>
 
