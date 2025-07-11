@@ -23,7 +23,7 @@ const googleId = (() => {
 })()
 async function fetchBalance() {
   if (!googleId) return
-  const res = await fetch(`http://localhost:8002/users/${googleId}`)
+  const res = await fetch(`https://user-ecodrive.liamcariou.fr/users/${googleId}`)
   if (res.ok) {
     const user = await res.json()
     balance.value = user.balance ?? 0

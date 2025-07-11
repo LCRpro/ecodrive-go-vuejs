@@ -182,7 +182,7 @@ async function saveEdit() {
   let rolesJson = editForm.roles
   try { JSON.parse(rolesJson) } catch { error.value = 'Rôles doit être un JSON valide'; return }
   const googleId = editingUser.value.google_id
-  const res = await fetch(`http://localhost:8002/users/${googleId}`, {
+  const res = await fetch(`https://user-ecodrive.liamcariou.fr/users/${googleId}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

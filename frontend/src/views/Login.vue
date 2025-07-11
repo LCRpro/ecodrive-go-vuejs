@@ -38,6 +38,6 @@ import { ref } from 'vue'
 const error = ref('')
 
 function googleLogin() {
-  window.location.href = 'http://localhost:8000/auth/google'
+  window.location.href = 'https://auth-ecodrive.liamcariou.fr/auth/google'
 }
 </script>
