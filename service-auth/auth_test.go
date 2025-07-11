@@ -24,7 +24,7 @@ func setupTestGoogleOauthConfig() {
 			AuthURL:  "https://accounts.google.com/o/oauth2/auth",
 			TokenURL: "https://oauth2.googleapis.com/token",
 		},
-		RedirectURL: "https://ecodrive.liamcariou.fr/callback",
+		RedirectURL: frontendCallbackURL,
 		Scopes:      []string{"email", "profile"},
 	}
 }
@@ -74,6 +74,7 @@ func TestJWTGeneration(t *testing.T) {
 }
 
 func TestHandleGoogleAuth_Redirects(t *testing.T) {
+	frontendCallbackURL = "http://localhost:5173/callback" 
 	setupTestGoogleOauthConfig()
 	router := setupRouter()
 	w := httptest.NewRecorder()
@@ -129,7 +130,7 @@ func TestHandleGoogleCallback_Success(t *testing.T) {
 		t.Fatalf("Expected 307, got %d", w.Code)
 	}
 	loc := w.Header().Get("Location")
-	if !strings.HasPrefix(loc, "https://ecodrive.liamcariou.fr/callback?token=") {
+	if !strings.HasPrefix(loc, frontendCallbackURL+"?token=") {
 		t.Errorf("Redirection inattendue : %s", loc)
 	}
 
@@ -263,7 +264,7 @@ func TestHandleGoogleCallback_BadRolesJSON(t *testing.T) {
 		t.Fatalf("Expected 307, got %d", w.Code)
 	}
 	loc := w.Header().Get("Location")
-	if !strings.HasPrefix(loc, "https://ecodrive.liamcariou.fr/callback?token=") {
+	if !strings.HasPrefix(loc, frontendCallbackURL+"?token=") {
 		t.Errorf("Redirection inattendue : %s", loc)
 	}
 	parts := strings.Split(loc, "token=")

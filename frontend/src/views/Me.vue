@@ -2,16 +2,17 @@
   <div
     class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-950 to-violet-900 px-2 py-10">
     <div class="w-full max-w-6xl">
-        <div class="flex flex-col items-center mb-12 mt-6">
-        <span class="mb-3 px-4 py-1 rounded-full bg-gradient-to-r from-violet-700 to-emerald-500 text-white font-bold text-xs shadow uppercase tracking-widest">
+      <div class="flex flex-col items-center mb-12 mt-6">
+        <span
+          class="mb-3 px-4 py-1 rounded-full bg-gradient-to-r from-violet-700 to-emerald-500 text-white font-bold text-xs shadow uppercase tracking-widest">
           Mon profil
         </span>
         <h2
-          class="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg text-center"
-        >
+          class="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg text-center">
           Mon espace personnel
         </h2>
-        <div class="text-gray-400 text-sm mt-2 font-medium">Gérez votre profil, votre activité, vos trajets et vos demandes driver.</div>
+        <div class="text-gray-400 text-sm mt-2 font-medium">Gérez votre profil, votre activité, vos trajets et vos
+          demandes driver.</div>
       </div>
       <UserStatsCards :balance="user?.balance?.toFixed(2) ?? '0.00'" :co2-passenger="co2Passenger"
         :co2-driver="co2Driver" :km-passenger="kmPassenger" :km-driver="kmDriver" class="mb-8" />
@@ -77,6 +78,8 @@ import DriverRequestCard from '../components/DriverRequestCard.vue'
 import TransactionHistory from '../components/TransactionHistory.vue'
 import CoursesCard from '../components/CoursesCard.vue'
 import UserStatsCards from '../components/UserStatsCards.vue'
+const userServiceURL = import.meta.env.VITE_USER_SERVICE_URL
+const driverServiceURL = import.meta.env.VITE_DRIVER_SERVICE_URL
 const user = ref(null)
 const driverRequest = ref(null)
 const router = useRouter()
@@ -134,7 +137,7 @@ async function resolveDriverNames(courses) {
   const ids = [...new Set(courses.map(c => c.driver_id).filter(Boolean))]
   for (const id of ids) {
     if (!driverNames.value[id]) {
-      const res = await fetch(`https://user-ecodrive.liamcariou.fr/users/${id}`)
+      const res = await fetch(`${userServiceURL}/users/${id}`)
       if (res.ok) {
         const user = await res.json()
         driverNames.value[id] = user.name
@@ -148,7 +151,7 @@ async function resolvePassengerNames(courses) {
   const ids = [...new Set(courses.map(c => c.passenger_id).filter(Boolean))]
   for (const id of ids) {
     if (!passengerNames.value[id]) {
-      const res = await fetch(`https://user-ecodrive.liamcariou.fr/users/${id}`)
+      const res = await fetch(`${userServiceURL}/users/${id}`)
       if (res.ok) {
         const user = await res.json()
         passengerNames.value[id] = user.name
@@ -160,7 +163,7 @@ async function resolvePassengerNames(courses) {
 }
 
 async function fetchMyCourses(googleId) {
-  const resPass = await fetch(`https://driver-ecodrive.liamcariou.fr/courses?role=passenger&id=${googleId}`)
+  const resPass = await fetch(`${driverServiceURL}/courses?role=passenger&id=${googleId}`)
   if (resPass.ok) {
     passengerCourses.value = await resPass.json()
     await resolveDriverNames(passengerCourses.value)
@@ -169,7 +172,7 @@ async function fetchMyCourses(googleId) {
     passengerCourses.value = []
   }
   if (user.value && user.value.roles?.includes("ROLE_DRIVER")) {
-    const resDrv = await fetch(`https://driver-ecodrive.liamcariou.fr/courses?role=driver&id=${googleId}`)
+    const resDrv = await fetch(`${driverServiceURL}/courses?role=driver&id=${googleId}`)
     if (resDrv.ok) {
       driverCourses.value = await resDrv.json()
       await resolvePassengerNames(driverCourses.value)
@@ -204,11 +207,11 @@ onMounted(async () => {
     router.push('/login')
     return
   }
-  const res = await fetch(`https://user-ecodrive.liamcariou.fr/users/${googleId}`)
+  const res = await fetch(`${userServiceURL}/users/${googleId}`)
   if (res.ok) user.value = await res.json()
   else router.push('/login')
 
-  const drres = await fetch(`https://user-ecodrive.liamcariou.fr/driver-requests`)
+  const drres = await fetch(`${userServiceURL}/driver-requests`)
   if (drres.ok) {
     const list = await drres.json()
     driverRequest.value = list.find(
@@ -221,7 +224,7 @@ onMounted(async () => {
 async function updateProfile() {
   const token = localStorage.getItem('token')
   const googleId = getGoogleIdFromToken(token)
-  const res = await fetch(`https://user-ecodrive.liamcariou.fr/users/${googleId}`, {
+  const res = await fetch(`${userServiceURL}/users/${googleId}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -250,14 +253,14 @@ async function requestDriver() {
     return
   }
   const payload = { google_id: googleId, car: modalCar.value, plate: modalPlate.value }
-  const res = await fetch(`https://user-ecodrive.liamcariou.fr/driver-requests`, {
+  const res = await fetch(`${userServiceURL}/driver-requests`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   })
   if (res.ok) {
     alert('Demande envoyée à l’admin !')
-    const drres = await fetch(`https://user-ecodrive.liamcariou.fr/driver-requests`)
+    const drres = await fetch(`${userServiceURL}/driver-requests`)
     if (drres.ok) {
       const list = await drres.json()
       driverRequest.value = list.find(

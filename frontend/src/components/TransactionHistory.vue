@@ -1,7 +1,9 @@
 <template>
   <div class="bg-gray-900 bg-opacity-90 rounded-2xl shadow-lg border border-gray-800 p-6 mb-4 mt-8">
-      <div class="flex mb-6">
-      <h2 class="text-2xl font-bold font-extrabold bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg text-center">Historique de mes transactions</h2>
+    <div class="flex mb-6">
+      <h2
+        class="text-2xl font-bold font-extrabold bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg text-center">
+        Historique de mes transactions</h2>
     </div>
     <div v-if="loading" class="text-gray-400 mb-4">Chargement...</div>
     <div v-else>
@@ -43,7 +45,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-
+const paiementServiceURL = import.meta.env.VITE_PAIEMENT_SERVICE_URL
 const transactions = ref([])
 const loading = ref(true)
 
@@ -66,7 +68,7 @@ onMounted(async () => {
   const googleId = getGoogleIdFromToken(token)
   if (!token || !googleId) return
 
-  const res = await fetch(`https://paiement-ecodrive.liamcariou.fr/transactions/${googleId}`, {
+  const res = await fetch(`${paiementServiceURL}/transactions/${googleId}`, {
     headers: { Authorization: 'Bearer ' + token }
   })
   if (res.ok) transactions.value = await res.json()

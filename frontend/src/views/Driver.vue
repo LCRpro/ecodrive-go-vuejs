@@ -1,46 +1,32 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-950 to-violet-900 flex flex-col items-center px-2 py-10 gap-8">
+  <div
+    class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-950 to-violet-900 flex flex-col items-center px-2 py-10 gap-8">
 
-      <div class="flex flex-col items-center mb-12 mt-6">
-        <span class="mb-3 px-4 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-violet-700 text-white font-bold text-xs shadow uppercase tracking-widest">
-          Interface chauffeur
-        </span>
-        <h2
-          class="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-violet-400 via-emerald-400 to-violet-400 bg-clip-text text-transparent drop-shadow-lg text-center"
-        >
-          Gérer mes courses
-        </h2>
-        <div class="text-gray-400 text-sm mt-2 font-medium text-center">
-          Visualisez vos trajets, acceptez des courses et suivez leur progression en temps réel.
-        </div>
+    <div class="flex flex-col items-center mb-12 mt-6">
+      <span
+        class="mb-3 px-4 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-violet-700 text-white font-bold text-xs shadow uppercase tracking-widest">
+        Interface chauffeur
+      </span>
+      <h2
+        class="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-violet-400 via-emerald-400 to-violet-400 bg-clip-text text-transparent drop-shadow-lg text-center">
+        Gérer mes courses
+      </h2>
+      <div class="text-gray-400 text-sm mt-2 font-medium text-center">
+        Visualisez vos trajets, acceptez des courses et suivez leur progression en temps réel.
       </div>
+    </div>
 
-  
-   
-    <DriverRequestedCourses
-      v-if="displayedCourses.length && displayedCourses[0].status === 'requested'"
-      :displayedCourses="displayedCourses"
-      :requestedAddresses="requestedAddresses"
-      :previewCourseId="previewCourseId"
-      @preview="previewCourseId = $event"
-      @accept="accept"
-    />
+
+
+    <DriverRequestedCourses v-if="displayedCourses.length && displayedCourses[0].status === 'requested'"
+      :displayedCourses="displayedCourses" :requestedAddresses="requestedAddresses" :previewCourseId="previewCourseId"
+      @preview="previewCourseId = $event" @accept="accept" />
     <DriverIdleMessage v-else-if="isIdle" />
-    <DriverActiveCourse
-      v-else-if="displayedCourses.length"
-      :displayedCourses="displayedCourses"
-      :driverId="driverId"
-      @start="startCourse"
-      @complete="completeCourse"
-    >
+    <DriverActiveCourse v-else-if="displayedCourses.length" :displayedCourses="displayedCourses" :driverId="driverId"
+      @start="startCourse" @complete="completeCourse">
       <template #map>
-        <DriverMapContainer
-          :from="mapFrom"
-          :to="mapTo"
-          :follow="activeCourse && activeCourse.status === 'in_progress'"
-          :zoomToCurrent="zoomOnMe"
-          :currentPosition="myPosition"
-        />
+        <DriverMapContainer :from="mapFrom" :to="mapTo" :follow="activeCourse && activeCourse.status === 'in_progress'"
+          :zoomToCurrent="zoomOnMe" :currentPosition="myPosition" />
       </template>
       <template #default="{ course }">
         <div class="flex items-center justify-between">
@@ -70,22 +56,22 @@
         <div class="flex items-center justify-between">
           <span class="text-xs text-gray-400 uppercase tracking-widest font-bold">Statut</span>
           <span>
-            <span v-if="course.status === 'accepted'" class="inline-block px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-semibold">Prise en charge</span>
-            <span v-else-if="course.status === 'in_progress'" class="inline-block px-3 py-1 rounded-full bg-blue-600 text-white text-xs font-semibold">En cours</span>
-            <span v-else-if="course.status === 'completed'" class="inline-block px-3 py-1 rounded-full bg-violet-700 text-white text-xs font-semibold">Terminée</span>
-            <span v-else-if="course.status === 'cancelled'" class="inline-block px-3 py-1 rounded-full bg-rose-700 text-white text-xs font-semibold">Annulée</span>
+            <span v-if="course.status === 'accepted'"
+              class="inline-block px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-semibold">Prise en
+              charge</span>
+            <span v-else-if="course.status === 'in_progress'"
+              class="inline-block px-3 py-1 rounded-full bg-blue-600 text-white text-xs font-semibold">En cours</span>
+            <span v-else-if="course.status === 'completed'"
+              class="inline-block px-3 py-1 rounded-full bg-violet-700 text-white text-xs font-semibold">Terminée</span>
+            <span v-else-if="course.status === 'cancelled'"
+              class="inline-block px-3 py-1 rounded-full bg-rose-700 text-white text-xs font-semibold">Annulée</span>
           </span>
         </div>
       </template>
     </DriverActiveCourse>
-    <DriverMapContainer
-      v-if="displayedCourses.length && displayedCourses[0].status === 'requested' || isIdle"
-      :from="mapFrom"
-      :to="mapTo"
-      :follow="activeCourse && activeCourse.status === 'in_progress'"
-      :zoomToCurrent="zoomOnMe"
-      :currentPosition="myPosition"
-    />
+    <DriverMapContainer v-if="displayedCourses.length && displayedCourses[0].status === 'requested' || isIdle"
+      :from="mapFrom" :to="mapTo" :follow="activeCourse && activeCourse.status === 'in_progress'"
+      :zoomToCurrent="zoomOnMe" :currentPosition="myPosition" />
   </div>
 </template>
 
@@ -99,6 +85,7 @@ import DriverActiveCourse from '../components/DriverActiveCourse.vue'
 import DriverIdleMessage from '../components/DriverIdleMessage.vue'
 import DriverMapContainer from '../components/DriverMapContainer.vue'
 
+const driverServiceURL = import.meta.env.VITE_DRIVER_SERVICE_URL
 const courses = ref([])
 const activeCourse = ref(null)
 const driverId = ref('')
@@ -161,7 +148,7 @@ async function reverseGeocode(lat, lng) {
         return address
       }
     }
-  } catch {}
+  } catch { }
   addressCache.set(key, `${lat}, ${lng}`)
   return `${lat}, ${lng}`
 }
@@ -171,11 +158,11 @@ onMounted(() => {
   if (navigator.geolocation) {
     geoWatchId = navigator.geolocation.watchPosition(
       pos => {
-   myPosition.value = {
-  lat: pos.coords.latitude,
-  lng: pos.coords.longitude
-}
-zoomOnMe.value = true
+        myPosition.value = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude
+        }
+        zoomOnMe.value = true
 
       },
       err => {
@@ -223,7 +210,7 @@ async function fetchCourses() {
   const token = localStorage.getItem('token')
   const payload = JSON.parse(atob(token.split('.')[1]))
   driverId.value = payload.sub
-  const res = await fetch(`https://driver-ecodrive.liamcariou.fr/courses?driverView=1&driver_id=${payload.sub}`, {
+  const res = await fetch(`${driverServiceURL}/courses?driverView=1&driver_id=${payload.sub}`, {
     headers: { Authorization: 'Bearer ' + token }
   })
   if (res.ok) {
@@ -237,7 +224,7 @@ async function fetchCourses() {
 function accept(id) {
   const token = localStorage.getItem('token')
   const payload = JSON.parse(atob(token.split('.')[1]))
-  fetch(`https://driver-ecodrive.liamcariou.fr/courses/${id}/accept`, {
+  fetch(`${driverServiceURL}/courses/${id}/accept`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
     body: JSON.stringify({ driver_id: payload.sub })
@@ -252,7 +239,7 @@ function accept(id) {
 
 function startCourse(id) {
   const token = localStorage.getItem('token')
-  fetch(`https://driver-ecodrive.liamcariou.fr/courses/${id}/start`, {
+  fetch(`${driverServiceURL}/courses/${id}/start`, {
     method: 'PATCH',
     headers: { Authorization: 'Bearer ' + token }
   }).then(async res => {
@@ -275,7 +262,7 @@ const isIdle = computed(() => {
 })
 function completeCourse(id) {
   const token = localStorage.getItem('token')
-  fetch(`https://driver-ecodrive.liamcariou.fr/courses/${id}/complete`, {
+  fetch(`${driverServiceURL}/courses/${id}/complete`, {
     method: 'PATCH',
     headers: { Authorization: 'Bearer ' + token }
   }).then(async res => {

@@ -3,15 +3,16 @@
     class="min-h-screen flex flex-col items-center bg-gradient-to-br from-gray-900 via-gray-950 to-violet-900 px-2 py-10">
     <div class="w-full max-w-7xl">
       <div class="flex flex-col items-center mb-12 mt-6">
-        <span class="mb-3 px-4 py-1 rounded-full bg-gradient-to-r from-violet-700 to-emerald-500 text-white font-bold text-xs shadow uppercase tracking-widest">
+        <span
+          class="mb-3 px-4 py-1 rounded-full bg-gradient-to-r from-violet-700 to-emerald-500 text-white font-bold text-xs shadow uppercase tracking-widest">
           Espace sécurisé
         </span>
         <h2
-          class="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg text-center"
-        >
+          class="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg text-center">
           Panel Admin
         </h2>
-        <div class="text-gray-400 text-sm mt-2 font-medium">Gestion des utilisateurs, chauffeurs, courses et finances</div>
+        <div class="text-gray-400 text-sm mt-2 font-medium">Gestion des utilisateurs, chauffeurs, courses et finances
+        </div>
       </div>
       <div v-if="appBalance !== null" class="mb-6">
         <div
@@ -25,7 +26,7 @@
         <AdminUserTable :users="users" />
         <AdminDriverRequests :driverRequests="driverRequests" :getUserByGoogleId="getUserByGoogleId"
           @handleRequest="handleRequest" />
-                  <AdminCoursesTable :courses="courses" :getUserByGoogleId="getUserByGoogleId" />
+        <AdminCoursesTable :courses="courses" :getUserByGoogleId="getUserByGoogleId" />
 
         <AdminTransactions :transactions="transactions" :getUserByGoogleId="getUserByGoogleId" />
       </div>
@@ -40,6 +41,11 @@ import AdminUserTable from '../components/AdminUserTable.vue'
 import AdminDriverRequests from '../components/AdminDriverRequests.vue'
 import AdminTransactions from '../components/AdminTransactions.vue'
 import AdminCoursesTable from '../components/AdminCoursesTable.vue'
+
+const driverServiceURL = import.meta.env.VITE_DRIVER_SERVICE_URL
+const adminServiceURL = import.meta.env.VITE_ADMIN_SERVICE_URL
+const paiementServiceURL = import.meta.env.VITE_PAIEMENT_SERVICE_URL
+const userServiceURL = import.meta.env.VITE_USER_SERVICE_URL
 
 const courses = ref([])
 const router = useRouter()
@@ -65,7 +71,7 @@ onMounted(async () => {
 
 async function fetchCourses() {
   const token = localStorage.getItem('token')
-  const res = await fetch('https://driver-ecodrive.liamcariou.fr/courses', {
+  const res = await fetch(driverServiceURL + '/courses', {
     headers: { Authorization: 'Bearer ' + token }
   })
   courses.value = res.ok ? await res.json() : []
@@ -74,7 +80,7 @@ async function fetchCourses() {
 async function fetchUsers() {
   loading.value = true
   const token = localStorage.getItem('token')
-  const res = await fetch('https://admin-ecodrive.liamcariou.fr/admin/users', {
+  const res = await fetch(adminServiceURL + '/admin/users', {
     headers: { Authorization: 'Bearer ' + token }
   })
   users.value = res.ok ? await res.json() : []
@@ -83,7 +89,7 @@ async function fetchUsers() {
 
 async function fetchDriverRequests() {
   const token = localStorage.getItem('token')
-  const res = await fetch('https://admin-ecodrive.liamcariou.fr/admin/driver-requests', {
+  const res = await fetch(adminServiceURL + '/admin/driver-requests', {
     headers: { Authorization: 'Bearer ' + token }
   })
   driverRequests.value = res.ok ? await res.json() : []
@@ -95,7 +101,7 @@ function getUserByGoogleId(google_id) {
 
 async function handleRequest(id, action) {
   const token = localStorage.getItem('token')
-  await fetch('https://admin-ecodrive.liamcariou.fr/admin/driver-requests/' + id, {
+  await fetch(adminServiceURL + '/admin/driver-requests/' + id, {
     method: 'PATCH',
     headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
     body: JSON.stringify({ action })
@@ -105,7 +111,7 @@ async function handleRequest(id, action) {
 }
 
 async function fetchAppBalance() {
-  const res = await fetch('https://user-ecodrive.liamcariou.fr/app-balance')
+  const res = await fetch(userServiceURL + '/app-balance')
   if (res.ok) {
     const data = await res.json()
     appBalance.value = data.balance
@@ -114,7 +120,7 @@ async function fetchAppBalance() {
 
 async function fetchTransactions() {
   const token = localStorage.getItem('token')
-  const res = await fetch('https://paiement-ecodrive.liamcariou.fr/transactions', {
+  const res = await fetch(paiementServiceURL + '/transactions', {
     headers: { Authorization: 'Bearer ' + token }
   })
   transactions.value = res.ok ? await res.json() : []

@@ -12,9 +12,12 @@ import (
 )
 
 var db *gorm.DB
+var userServiceURL string
 
 func main() {
 	godotenv.Load()
+	userServiceURL = os.Getenv("USER_SERVICE_URL")
+
 	dburl := os.Getenv("DATABASE_URL")
 	if dburl == "" {
 		panic("DATABASE_URL manquante !")
@@ -27,9 +30,11 @@ func main() {
 	}
 	db.AutoMigrate(&Course{})
 
+	frontendOrigin := os.Getenv("FRONTEND_ORIGIN")
+
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://ecodrive.liamcariou.fr"},
+		AllowOrigins:     []string{frontendOrigin},
 		AllowMethods:     []string{"GET", "POST", "PATCH", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: true,

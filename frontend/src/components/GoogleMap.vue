@@ -9,10 +9,10 @@
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps({
-  from: Object,              
-  to: Object,                
-  follow: Boolean,           
-  zoomToCurrent: Boolean,     
+  from: Object,
+  to: Object,
+  follow: Boolean,
+  zoomToCurrent: Boolean,
   currentPosition: Object
 })
 
@@ -41,7 +41,7 @@ function drawRoute(from, to) {
   })
 }
 
-function centerMap(coords, zoom=15) {
+function centerMap(coords, zoom = 15) {
   if (map && coords) {
     map.setCenter(coords)
     map.setZoom(zoom)
@@ -56,7 +56,7 @@ function updateMyMarker(coords) {
       map: map,
       icon: {
         url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
-        scaledSize: new window.google.maps.Size(38,38)
+        scaledSize: new window.google.maps.Size(38, 38)
       }
     })
   } else {
