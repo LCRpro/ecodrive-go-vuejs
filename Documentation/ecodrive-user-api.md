@@ -135,7 +135,7 @@ Réponse :
 ```json
 {
   "token": "eyJhbGciOiJIUzI1...",
-  "user": ```json
+  "user": "..."
 { ... }
 }
 ```
