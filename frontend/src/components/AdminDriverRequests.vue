@@ -156,6 +156,12 @@ async function saveEdit() {
     body: JSON.stringify(payload),
   })
   if (res.ok) {
+    if (editingRequest.value.status === 'accepted') {
+      await fetch(`${userServiceURL}/update-token/${editingRequest.value.google_id}`, {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+    }
     showEditModal.value = false
     window.location.reload()
   } else {
