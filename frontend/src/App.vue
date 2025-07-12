@@ -21,7 +21,7 @@
         <router-link v-if="isLoggedIn && isDriver" to="/driver" class="nav-link">Driver</router-link>
         <span v-if="isLoggedIn && isDriver" class="separator" />
         <router-link v-if="isLoggedIn" to="/support" class="nav-link">Support</router-link>
-        <span v-if="isLoggedIn && isDriver" class="separator" />
+        <span v-if="isLoggedIn" class="separator" />
         <router-link v-if="isLoggedIn" to="/deposit"
           class="px-3 py-2 rounded-lg font-semibold bg-emerald-600 hover:bg-emerald-700 transition-colors shadow mx-1">Déposer</router-link>
         <span v-if="isLoggedIn" class="separator" />
@@ -48,6 +48,8 @@
       <div v-if="isOpen" class="md:hidden bg-gray-900 text-white px-4 py-2 flex flex-col gap-2 shadow-lg">
         <router-link to="/" class="nav-link-mobile" @click="isOpen = false">Accueil</router-link>
         <router-link to="/me" v-if="isLoggedIn" class="nav-link-mobile" @click="isOpen = false">Mon profil</router-link>
+                <router-link to="/support" v-if="isLoggedIn" class="nav-link-mobile" @click="isOpen = false">Support</router-link>
+
         <router-link to="/admin" v-if="isAdmin" class="nav-link-mobile" @click="isOpen = false">Admin</router-link>
         <router-link to="/course" v-if="isLoggedIn" class="nav-link-mobile" @click="isOpen = false">Commander une
           course</router-link>
@@ -160,7 +162,7 @@ async function becomeAdmin() {
   height: 24px;
   width: 1.5px;
   background: #444;
-  margin: 0 0.5rem;
+  margin: 0 0.8rem;
   vertical-align: middle;
 }
 
