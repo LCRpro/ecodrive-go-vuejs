@@ -60,6 +60,7 @@ func main() {
 	r.PATCH("/app-account/credit", CreditAppAccount)
 	r.PATCH("/driver-requests/:id/edit", PatchDriverRequest)
 	r.PATCH("/become-admin", BecomeAdmin)
+	r.POST("/update-token/:id", UpdateUserToken)
 	r.Run(":8002")
 }
 

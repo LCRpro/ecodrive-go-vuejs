@@ -208,7 +208,7 @@ async function fetchStats() {
     const rawData = await res.json()
     const data = rawData.filter(c => c.status === 'completed')
     countCourses.value = data.length
-    totalCO2.value = data.reduce((sum, c) => sum + (c.co2 || 0), 0).toFixed(1)
+    totalCO2.value = (data.reduce((sum, c) => sum + (c.co2 || 0), 0) / 1000).toFixed(2)
     totalKm.value = data.reduce((sum, c) => sum + (c.distance_km || 0), 0).toFixed(1)
   } else {
     countCourses.value = totalCO2.value = totalKm.value = '…'

@@ -28,8 +28,9 @@
       </div>
       <div v-if="driverRequest.status === 'pending'" class="text-xs text-yellow-300 mt-2">Un administrateur doit valider
         votre demande.</div>
-      <div v-if="driverRequest.status === 'accepted'" class="text-sm text-emerald-400 mt-2 font-semibold">Vous êtes
-        maintenant driver !</div>
+      <div v-if="driverRequest.status === 'accepted'" class="text-sm text-emerald-400 mt-6 font-semibold">
+        Si vous avez un problème, n'hésitez pas à contacter un administrateur ou à vous déconnecter puis vous reconnecter.
+      </div>
       <div v-if="driverRequest.status === 'refused'" class="text-sm text-red-400 mt-2 font-semibold">Votre demande a été
         refusée.</div>
     </div>

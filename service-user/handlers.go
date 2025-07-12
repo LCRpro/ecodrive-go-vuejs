@@ -272,3 +272,34 @@ func BecomeAdmin(c *gin.Context) {
 		"user":  user,
 	})
 }
+func UpdateUserToken(c *gin.Context) {
+	googleID := c.Param("id")
+
+	var user User
+	if err := db.Where("google_id = ?", googleID).First(&user).Error; err != nil {
+		c.JSON(404, gin.H{"error": "user not found"})
+		return
+	}
+
+	var roles []string
+	json.Unmarshal([]byte(user.Roles), &roles)
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"email": user.Email,
+		"roles": roles,
+		"sub":   user.GoogleID,
+		"exp":   jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+	})
+
+	secret := os.Getenv("JWT_SECRET")
+	tokenString, err := token.SignedString([]byte(secret))
+	if err != nil {
+		c.JSON(500, gin.H{"error": "token generation failed"})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"token": tokenString,
+		"user":  user,
+	})
+}
